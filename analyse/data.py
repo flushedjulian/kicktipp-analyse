@@ -52,6 +52,12 @@ class Team:
     icon: str
 
 
+# Logos, deren Link in OpenLigaDB nicht mehr funktioniert (Team-ID → Ersatz von Wikimedia)
+LOGO_FIX = {
+    6: "https://upload.wikimedia.org/wikipedia/de/f/f7/Bayer_Leverkusen_Logo.svg",  # Leverkusen
+}
+
+
 def _parse_utc(s):
     return datetime.fromisoformat(s.replace("Z", "+00:00")).astimezone(timezone.utc)
 
@@ -62,7 +68,8 @@ def load_season(season, teams):
     matches = []
     for m in raw:
         for t in (m["team1"], m["team2"]):
-            teams.setdefault(t["teamId"], Team(t["teamId"], t["teamName"], t["shortName"], t["teamIconUrl"]))
+            icon = LOGO_FIX.get(t["teamId"], t["teamIconUrl"])
+            teams.setdefault(t["teamId"], Team(t["teamId"], t["teamName"], t["shortName"], icon))
         match = Match(
             match_id=m["matchID"],
             season=season,
