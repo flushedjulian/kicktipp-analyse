@@ -1,0 +1,36 @@
+name: Spieltag-Analyse
+
+on:
+  schedule:
+    - cron: "0 5 * * *"   # täglich ca. 7 Uhr deutscher Zeit
+  workflow_dispatch:       # manuell über "Run workflow" startbar
+
+permissions:
+  contents: write
+
+concurrency:
+  group: analyse
+  cancel-in-progress: false
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Analyse erstellen
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: python -m analyse.main
+
+      - name: Ergebnis speichern
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs data
+          git diff --cached --quiet || git commit -m "Analyse aktualisiert $(date -u +%Y-%m-%d)"
+          git push

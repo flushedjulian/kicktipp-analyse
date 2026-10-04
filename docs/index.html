@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kicktipp-Analyse · 5. Spieltag</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+<style>
+:root{
+  --bg:#f4f5f7;--card:#fff;--text:#16181d;--muted:#667085;--line:#e4e7ec;
+  --home:#2f6fdb;--draw:#9aa3b2;--away:#e0663a;
+  --hoch:#1f9d55;--mittel:#c98a0b;--niedrig:#8a94a6;
+  --win:#1f9d55;--loss:#d64545;--accent:#2f6fdb;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1115;--card:#181b21;--text:#e8eaee;--muted:#98a2b3;--line:#2a2f38;
+    --home:#5b8ff0;--draw:#6b7486;--away:#f08358;
+    --hoch:#3fbf75;--mittel:#e0a52b;--niedrig:#7d879a;--win:#3fbf75;--loss:#ef6262;--accent:#5b8ff0;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1115;--card:#181b21;--text:#e8eaee;--muted:#98a2b3;--line:#2a2f38;
+  --home:#5b8ff0;--draw:#6b7486;--away:#f08358;
+  --hoch:#3fbf75;--mittel:#e0a52b;--niedrig:#7d879a;--win:#3fbf75;--loss:#ef6262;--accent:#5b8ff0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+header{margin-bottom:20px}
+.eyebrow{margin:0;color:var(--accent);font-weight:600;font-size:14px;letter-spacing:.02em}
+h1{margin:2px 0 4px;font-size:32px;line-height:1.15}
+h2{font-size:20px;margin:0 0 12px}
+h3{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:16px 0 8px;font-weight:600}
+h4{margin:0 0 2px;font-size:16px;display:flex;align-items:center;gap:6px}
+p{margin:0 0 8px}
+.muted{color:var(--muted)}
+.small-text{font-size:13px}
+.section-title{margin-top:28px;margin-bottom:2px}
+.hint{font-size:14px;margin-bottom:12px}
+.panel,.card{background:var(--card);border:1px solid var(--line);border-radius:14px}
+.panel{padding:16px;margin:16px 0}
+.card{margin:10px 0;overflow:hidden}
+.logo{object-fit:contain;flex:none}
+.overview{display:flex;flex-direction:column}
+.ov-row{display:grid;grid-template-columns:96px 1fr auto 1fr;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line);color:inherit;text-decoration:none}
+.ov-row:first-child{border-top:0}
+.ov-when{font-size:13px}
+.ov-h{text-align:right;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ov-a{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tipbox{display:inline-flex;align-items:center;gap:2px;justify-content:center;min-width:64px;padding:6px 10px;border-radius:10px;font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;color:#fff;background:var(--niedrig)}
+.tipbox.small{min-width:52px;font-size:17px;padding:3px 8px}
+.conf-hoch.tipbox,.badge.conf-hoch{background:var(--hoch)}
+.conf-mittel.tipbox,.badge.conf-mittel{background:var(--mittel)}
+.conf-niedrig.tipbox,.badge.conf-niedrig{background:var(--niedrig)}
+.lock{font-size:12px;margin-left:2px}
+.badge{display:inline-block;color:#fff;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px}
+.legend{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0}
+summary{list-style:none;cursor:pointer;padding:14px 16px}
+summary::-webkit-details-marker{display:none}
+.when{font-size:13px;color:var(--muted);text-align:center;margin-bottom:6px}
+.matchup{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.t{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;min-width:0}
+.t.home{justify-content:flex-end;text-align:right}
+.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.bar{display:flex;height:8px;border-radius:99px;overflow:hidden;margin-top:12px;background:var(--line)}
+.seg.h,.dot.h{background:var(--home)}.seg.d,.dot.d{background:var(--draw)}.seg.a,.dot.a{background:var(--away)}
+.bar-legend{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px;gap:6px}
+.bar-legend span{white-space:nowrap}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.summary-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.alt{text-align:center;font-size:13px;color:var(--muted);margin:8px 0 0}
+.more{font-size:13px;color:var(--accent);font-weight:600}
+.more::after{content:" ▾"}
+details[open] .more::after{content:" ▴"}
+.details{padding:0 16px 16px;border-top:1px solid var(--line)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.big{font-size:26px;font-weight:800;margin:0;font-variant-numeric:tabular-nums}
+.results{display:flex;flex-wrap:wrap;gap:6px}
+.res{border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-weight:700;font-variant-numeric:tabular-nums}
+.res small{font-weight:400;color:var(--muted)}
+table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.ev th,.ev td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}
+.ev th{font-size:12px;color:var(--muted);font-weight:600}
+.ev tr.best td{font-weight:800;color:var(--hoch)}
+.note{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:14px;margin:14px 0 0}
+.note.warn{border-left:3px solid var(--mittel)}
+.teams{margin-top:8px}
+.team-col dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:10px 0 0;font-size:14px}
+.team-col dt{color:var(--muted)}
+.team-col dd{margin:0}
+.chip{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:5px;font-size:11px;font-weight:700;color:#fff;margin-right:2px}
+.chip.S{background:var(--win)}.chip.U{background:var(--draw)}.chip.N{background:var(--loss)}
+.h2h{list-style:none;padding:0;margin:0;font-size:14px}
+.h2h li{padding:3px 0}
+.hist-total{font-size:18px}
+.hist{border-top:1px solid var(--line)}
+.hist summary{display:flex;justify-content:space-between;padding:10px 0}
+.p4{color:var(--hoch)}.p3{color:var(--hoch)}.p2{color:var(--mittel)}.p0{color:var(--loss)}
+.about ol{padding-left:20px;margin:0 0 12px}
+.about li{margin-bottom:8px}
+@media (max-width:560px){
+  .grid2{grid-template-columns:1fr;gap:0}
+  .teams{gap:18px}
+  .t{font-size:15px;gap:6px}
+  .matchup{gap:6px}
+  .t .logo{width:22px;height:22px}
+  .tipbox{min-width:56px;font-size:20px}
+  .ov-row{grid-template-columns:1fr auto 1fr;row-gap:0}
+  .ov-when{grid-column:1/-1;text-align:center;font-size:12px}
+  h1{font-size:28px}
+  .bar-legend{font-size:11px}
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Bundesliga 2026/27</p>
+    <h1>5. Spieltag</h1>
+    <p class="muted">Fr 09.10. 20:30 bis So 11.10. 17:30 · aktualisiert 04.10. 11:50 Uhr</p>
+    <p class="note warn">Ohne Wettquoten berechnet – nur eigenes Modell.</p>
+  </header>
+
+  <section class="panel">
+    <h2>Alle Tipps auf einen Blick</h2>
+    <div class="overview"><a class="ov-row" href="#spiel-0"><span class="muted ov-when">Fr 09.10. 20:30</span><span class="ov-h">Dortmund</span><span class="tipbox small conf-hoch">1:0</span><span class="ov-a">Bremen</span></a><a class="ov-row" href="#spiel-1"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Hoffenheim</span><span class="tipbox small conf-hoch">2:1</span><span class="ov-a">HSV</span></a><a class="ov-row" href="#spiel-2"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Augsburg</span><span class="tipbox small conf-hoch">1:2</span><span class="ov-a">Bayern</span></a><a class="ov-row" href="#spiel-3"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Mainz</span><span class="tipbox small conf-niedrig">1:2</span><span class="ov-a">Leverkusen</span></a><a class="ov-row" href="#spiel-4"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Union Berlin</span><span class="tipbox small conf-mittel">2:1</span><span class="ov-a">Elversberg</span></a><a class="ov-row" href="#spiel-5"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Paderborn</span><span class="tipbox small conf-mittel">1:2</span><span class="ov-a">Stuttgart</span></a><a class="ov-row" href="#spiel-6"><span class="muted ov-when">Sa 10.10. 18:30</span><span class="ov-h">Leipzig</span><span class="tipbox small conf-hoch">2:1</span><span class="ov-a">Frankfurt</span></a><a class="ov-row" href="#spiel-7"><span class="muted ov-when">So 11.10. 15:30</span><span class="ov-h">Köln</span><span class="tipbox small conf-mittel">2:1</span><span class="ov-a">Gladbach</span></a><a class="ov-row" href="#spiel-8"><span class="muted ov-when">So 11.10. 17:30</span><span class="ov-h">Freiburg</span><span class="tipbox small conf-hoch">2:1</span><span class="ov-a">S04</span></a></div>
+    <p class="legend"><span class="badge conf-hoch">Klare Sache</span><span class="badge conf-mittel">Leichter Favorit</span><span class="badge conf-niedrig">Offenes Spiel</span></p>
+  </section>
+
+  <h2 class="section-title">Spiele im Detail</h2>
+  <p class="muted hint">Auf ein Spiel tippen, um die Analyse aufzuklappen.</p>
+  
+<article class="card" id="spiel-0">
+  <details>
+    <summary>
+      <div class="when">Fr 09.10. 20:30</div>
+      <div class="matchup">
+        <span class="t home"><span class="nm">Dortmund</span> <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Borussia_Dortmund_logo.svg/960px-Borussia_Dortmund_logo.svg.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
+        <span class="tipbox conf-hoch">1:0</span>
+        <span class="t away"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/b/be/SV-Werder-Bremen-Logo.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Bremen</span></span>
+      </div>
+      
+    <div class="bar" role="img" aria-label="Heimsieg 70 %, Unentschieden 19 %, Auswärtssieg 12 %">
+      <span class="seg h" style="width:69.5%"></span><span class="seg d" style="width:18.9%"></span><span class="seg a" style="width:11.5%"></span>
+    </div>
+    <div class="bar-legend"><span><i class="dot h"></i>Dortmund 70 %</span><span><i class="dot d"></i>Remis 19 %</span><span><i class="dot a"></i>Bremen 12 %</span></div>
+      <p class="alt">Praktisch genauso gut: 2:0, 2:1</p>
+      <div class="summary-foot"><span class="badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
+    </summary>
+    <div class="details">
+      
+      <div class="grid2">
+        <section>
+          <h3>Erwartete Tore</h3>
+          <p class="big">2,26 : 0,82</p>
+          <h3>Wahrscheinlichste Ergebnisse</h3>
+          <div class="results"><span class="res">2:0 <small>12 %</small></span><span class="res">1:0 <small>10 %</small></span><span class="res">2:1 <small>10 %</small></span><span class="res">1:1 <small>9 %</small></span><span class="res">3:0 <small>9 %</small></span><span class="res">3:1 <small>7 %</small></span></div>
+        </section>
+        <section>
+          <h3>Welcher Tipp bringt am meisten?</h3>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>1:0</td><td>1,72</td></tr><tr><td>2:0</td><td>1,72</td></tr><tr><td>2:1</td><td>1,72</td></tr><tr><td>3:1</td><td>1,67</td></tr></tbody></table>
+        </section>
+      </div>
+      
+      <div class="grid2 teams">
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Borussia_Dortmund_logo.svg/960px-Borussia_Dortmund_logo.svg.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Dortmund</h4>
+          <p class="muted">1. Platz · 12 Pkt · 9:2 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip S" title="16.05.26 A vs Bremen: 2:0">S</span><span class="chip S" title="29.08.26 H vs HSV: 2:0">S</span><span class="chip S" title="05.09.26 A vs Hoffenheim: 3:2">S</span><span class="chip S" title="12.09.26 H vs Paderborn: 3:0">S</span><span class="chip S" title="19.09.26 A vs Stuttgart: 1:0">S</span></dd>
+            <dt>Heimspiele</dt><dd><span class="chip S" title="29.08.26 H vs HSV: 2:0">S</span><span class="chip S" title="12.09.26 H vs Paderborn: 3:0">S</span></dd>
+            <dt>xG letzte 5</dt><dd>2,4 erzeugt · 1,0 zugelassen</dd>
+            <dt>Torjäger</dt><dd>S. Guirassy (2), Fabio Silva (2)</dd>
+          </dl>
+        </div>
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/b/be/SV-Werder-Bremen-Logo.svg" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Bremen</h4>
+          <p class="muted">8. Platz · 7 Pkt · 8:8 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip N" title="16.05.26 H vs Dortmund: 0:2">N</span><span class="chip N" title="30.08.26 A vs Freiburg: 1:4">N</span><span class="chip S" title="05.09.26 H vs Leipzig: 3:1">S</span><span class="chip U" title="12.09.26 A vs Köln: 1:1">U</span><span class="chip S" title="19.09.26 H vs Augsburg: 3:2">S</span></dd>
+            <dt>Auswärtsspiele</dt><dd><span class="chip N" title="30.08.26 A vs Freiburg: 1:4">N</span><span class="chip U" title="12.09.26 A vs Köln: 1:1">U</span></dd>
+            <dt>xG letzte 5</dt><dd>1,2 erzeugt · 1,9 zugelassen</dd>
+            <dt>Torjäger</dt><dd>N. Füllkrug (3), M. Grüll (2)</dd>
+          </dl>
+        </div>
+      </div>
+      <h3>Direkter Vergleich</h3>
+      <ul class="h2h"><li><span class="muted">16.05.26</span> Bremen – Dortmund <b>0:2</b></li><li><span class="muted">13.01.26</span> Dortmund – Bremen <b>3:0</b></li></ul>
+    </div>
+  </details>
+</article>
+<article class="card" id="spiel-1">
+  <details>
+    <summary>
+      <div class="when">Sa 10.10. 15:30</div>
+      <div class="matchup">
+        <span class="t home"><span class="nm">Hoffenheim</span> <img class="logo" src="https://i.imgur.com/gF0PfEl.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
+        <span class="tipbox conf-hoch">2:1</span>
+        <span class="t away"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/f/f7/Hamburger_SV_logo.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">HSV</span></span>
+      </div>
+      
+    <div class="bar" role="img" aria-label="Heimsieg 66 %, Unentschieden 19 %, Auswärtssieg 15 %">
+      <span class="seg h" style="width:65.9%"></span><span class="seg d" style="width:18.8%"></span><span class="seg a" style="width:15.2%"></span>
+    </div>
+    <div class="bar-legend"><span><i class="dot h"></i>Hoffenheim 66 %</span><span><i class="dot d"></i>Remis 19 %</span><span><i class="dot a"></i>HSV 15 %</span></div>
+      <p class="alt">Praktisch genauso gut: 1:0</p>
+      <div class="summary-foot"><span class="badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
+    </summary>
+    <div class="details">
+      
+      <div class="grid2">
+        <section>
+          <h3>Erwartete Tore</h3>
+          <p class="big">2,43 : 1,11</p>
+          <h3>Wahrscheinlichste Ergebnisse</h3>
+          <div class="results"><span class="res">2:1 <small>10 %</small></span><span class="res">2:0 <small>9 %</small></span><span class="res">1:1 <small>8 %</small></span><span class="res">3:1 <small>8 %</small></span><span class="res">3:0 <small>7 %</small></span><span class="res">1:0 <small>7 %</small></span></div>
+        </section>
+        <section>
+          <h3>Welcher Tipp bringt am meisten?</h3>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>2:1</td><td>1,63</td></tr><tr><td>1:0</td><td>1,60</td></tr><tr><td>2:0</td><td>1,60</td></tr><tr><td>3:1</td><td>1,59</td></tr></tbody></table>
+        </section>
+      </div>
+      
+      <div class="grid2 teams">
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://i.imgur.com/gF0PfEl.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Hoffenheim</h4>
+          <p class="muted">14. Platz · 3 Pkt · 7:10 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip N" title="16.05.26 A vs Gladbach: 0:4">N</span><span class="chip N" title="29.08.26 A vs Köln: 2:3">N</span><span class="chip N" title="05.09.26 H vs Dortmund: 2:3">N</span><span class="chip S" title="12.09.26 H vs Stuttgart: 2:1">S</span><span class="chip N" title="20.09.26 A vs Paderborn: 1:3">N</span></dd>
+            <dt>Heimspiele</dt><dd><span class="chip N" title="05.09.26 H vs Dortmund: 2:3">N</span><span class="chip S" title="12.09.26 H vs Stuttgart: 2:1">S</span></dd>
+            <dt>xG letzte 5</dt><dd>2,1 erzeugt · 1,8 zugelassen</dd>
+            <dt>Torjäger</dt><dd>A. Daghim (2), A. Hložek (2)</dd>
+          </dl>
+        </div>
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/f/f7/Hamburger_SV_logo.svg" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> HSV</h4>
+          <p class="muted">16. Platz · 3 Pkt · 2:13 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip U" title="16.05.26 A vs Leverkusen: 1:1">U</span><span class="chip N" title="29.08.26 A vs Dortmund: 0:2">N</span><span class="chip N" title="06.09.26 H vs Mainz: 0:5">N</span><span class="chip N" title="13.09.26 A vs Leipzig: 0:5">N</span><span class="chip S" title="19.09.26 H vs Köln: 2:1">S</span></dd>
+            <dt>Auswärtsspiele</dt><dd><span class="chip N" title="29.08.26 A vs Dortmund: 0:2">N</span><span class="chip N" title="13.09.26 A vs Leipzig: 0:5">N</span></dd>
+            <dt>xG letzte 5</dt><dd>1,1 erzeugt · 2,5 zugelassen</dd>
+            <dt>Torjäger</dt><dd>N. Capaldo (1),  Poulsen, Yussuf (1)</dd>
+          </dl>
+        </div>
+      </div>
+      <h3>Direkter Vergleich</h3>
+      <ul class="h2h"><li><span class="muted">25.04.26</span> HSV – Hoffenheim <b>1:2</b></li><li><span class="muted">13.12.25</span> Hoffenheim – HSV <b>4:1</b></li></ul>
+    </div>
+  </details>
+</article>
+<article class="card" id="spiel-2">
+  <details>
+    <summary>
+      <div class="when">Sa 10.10. 15:30</div>
+      <div class="matchup">
+        <span class="t home"><span class="nm">Augsburg</span> <img class="logo" src="https://i.imgur.com/sdE62e2.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
+        <span class="tipbox conf-hoch">1:2</span>
+        <span class="t away"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Logo_FC_Bayern_M%C3%BCnchen_%282002%E2%80%932017%29.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Bayern</span></span>
+      </div>
+      
+    <div class="bar" role="img" aria-label="Heimsieg 20 %, Unentschieden 18 %, Auswärtssieg 63 %">
+      <span class="seg h" style="width:19.6%"></span><span class="seg d" style="width:17.8%"></span><span class="seg a" style="width:62.6%"></span>
+    </div>
+    <div class="bar-legend"><span><i class="dot h"></i>Augsburg 20 %</span><span><i class="dot d"></i>Remis 18 %</span><span><i class="dot a"></i>Bayern 63 %</span></div>
+      <p class="alt">Praktisch genauso gut: 2:3, 1:3</p>
+      <div class="summary-foot"><span class="badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
+    </summary>
+    <div class="details">
+      
+      <div class="grid2">
+        <section>
+          <h3>Erwartete Tore</h3>
+          <p class="big">1,55 : 2,75</p>
+          <h3>Wahrscheinlichste Ergebnisse</h3>
+          <div class="results"><span class="res">1:2 <small>8 %</small></span><span class="res">1:3 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span><span class="res">1:1 <small>6 %</small></span><span class="res">2:3 <small>6 %</small></span><span class="res">0:2 <small>5 %</small></span></div>
+        </section>
+        <section>
+          <h3>Welcher Tipp bringt am meisten?</h3>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>1:2</td><td>1,53</td></tr><tr><td>2:3</td><td>1,50</td></tr><tr><td>1:3</td><td>1,50</td></tr><tr><td>0:1</td><td>1,48</td></tr></tbody></table>
+        </section>
+      </div>
+      
+      <div class="grid2 teams">
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://i.imgur.com/sdE62e2.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Augsburg</h4>
+          <p class="muted">4. Platz · 7 Pkt · 11:6 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip N" title="16.05.26 A vs Union Berlin: 0:4">N</span><span class="chip S" title="30.08.26 H vs S04: 3:0">S</span><span class="chip S" title="06.09.26 A vs Frankfurt: 4:1">S</span><span class="chip U" title="12.09.26 H vs Leverkusen: 2:2">U</span><span class="chip N" title="19.09.26 A vs Bremen: 2:3">N</span></dd>
+            <dt>Heimspiele</dt><dd><span class="chip S" title="30.08.26 H vs S04: 3:0">S</span><span class="chip U" title="12.09.26 H vs Leverkusen: 2:2">U</span></dd>
+            <dt>xG letzte 5</dt><dd>1,8 erzeugt · 2,2 zugelassen</dd>
+            <dt>Torjäger</dt><dd>M. Gregoritsch (3), R. Fellhauer (2)</dd>
+          </dl>
+        </div>
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Logo_FC_Bayern_M%C3%BCnchen_%282002%E2%80%932017%29.svg" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Bayern</h4>
+          <p class="muted">2. Platz · 10 Pkt · 14:2 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip S" title="16.05.26 H vs Köln: 5:1">S</span><span class="chip S" title="28.08.26 H vs Stuttgart: 5:1">S</span><span class="chip U" title="05.09.26 A vs S04: 0:0">U</span><span class="chip S" title="13.09.26 A vs Elversberg: 2:1">S</span><span class="chip S" title="18.09.26 H vs Union Berlin: 7:0">S</span></dd>
+            <dt>Auswärtsspiele</dt><dd><span class="chip U" title="05.09.26 A vs S04: 0:0">U</span><span class="chip S" title="13.09.26 A vs Elversberg: 2:1">S</span></dd>
+            <dt>xG letzte 5</dt><dd>3,2 erzeugt · 0,8 zugelassen</dd>
+            <dt>Torjäger</dt><dd>M. Olise (4), H. Kane (3)</dd>
+          </dl>
+        </div>
+      </div>
+      <h3>Direkter Vergleich</h3>
+      <ul class="h2h"><li><span class="muted">24.01.26</span> Bayern – Augsburg <b>1:2</b></li><li><span class="muted">30.08.25</span> Augsburg – Bayern <b>2:3</b></li></ul>
+    </div>
+  </details>
+</article>
+<article class="card" id="spiel-3">
+  <details>
+    <summary>
+      <div class="when">Sa 10.10. 15:30</div>
+      <div class="matchup">
+        <span class="t home"><span class="nm">Mainz</span> <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/9/9e/Logo_Mainz_05.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
+        <span class="tipbox conf-niedrig">1:2</span>
+        <span class="t away"><img class="logo" src="https://www.bundesliga-reisefuehrer.de/sites/default/files/B04_Standard_Logo_RGB.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Leverkusen</span></span>
+      </div>
+      
+    <div class="bar" role="img" aria-label="Heimsieg 39 %, Unentschieden 22 %, Auswärtssieg 39 %">
+      <span class="seg h" style="width:38.6%"></span><span class="seg d" style="width:22.2%"></span><span class="seg a" style="width:39.3%"></span>
+    </div>
+    <div class="bar-legend"><span><i class="dot h"></i>Mainz 39 %</span><span><i class="dot d"></i>Remis 22 %</span><span><i class="dot a"></i>Leverkusen 39 %</span></div>
+      <p class="alt">Praktisch genauso gut: 2:1, 2:3</p>
+      <div class="summary-foot"><span class="badge conf-niedrig">Offenes Spiel</span><span class="more">Details</span></div>
+    </summary>
+    <div class="details">
+      
+      <div class="grid2">
+        <section>
+          <h3>Erwartete Tore</h3>
+          <p class="big">1,90 : 1,92</p>
+          <h3>Wahrscheinlichste Ergebnisse</h3>
+          <div class="results"><span class="res">1:1 <small>8 %</small></span><span class="res">1:2 <small>8 %</small></span><span class="res">2:1 <small>8 %</small></span><span class="res">2:2 <small>7 %</small></span><span class="res">1:3 <small>5 %</small></span><span class="res">3:1 <small>5 %</small></span></div>
+        </section>
+        <section>
+          <h3>Welcher Tipp bringt am meisten?</h3>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>1:2</td><td>1,04</td></tr><tr><td>2:1</td><td>1,02</td></tr><tr><td>2:3</td><td>1,01</td></tr><tr><td>0:1</td><td>1,00</td></tr></tbody></table>
+        </section>
+      </div>
+      
+      <div class="grid2 teams">
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/9/9e/Logo_Mainz_05.svg" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Mainz</h4>
+          <p class="muted">6. Platz · 7 Pkt · 10:6 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip S" title="16.05.26 A vs Heidenheim: 2:0">S</span><span class="chip U" title="29.08.26 H vs Paderborn: 0:0">U</span><span class="chip S" title="06.09.26 A vs HSV: 5:0">S</span><span class="chip N" title="12.09.26 H vs Frankfurt: 1:3">N</span><span class="chip S" title="19.09.26 A vs Gladbach: 4:3">S</span></dd>
+            <dt>Heimspiele</dt><dd><span class="chip U" title="29.08.26 H vs Paderborn: 0:0">U</span><span class="chip N" title="12.09.26 H vs Frankfurt: 1:3">N</span></dd>
+            <dt>xG letzte 5</dt><dd>2,9 erzeugt · 1,8 zugelassen</dd>
+            <dt>Torjäger</dt><dd>P. Tietz (4), S. Becker (2)</dd>
+          </dl>
+        </div>
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://www.bundesliga-reisefuehrer.de/sites/default/files/B04_Standard_Logo_RGB.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Leverkusen</h4>
+          <p class="muted">5. Platz · 7 Pkt · 10:5 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip U" title="16.05.26 H vs HSV: 1:1">U</span><span class="chip N" title="29.08.26 A vs Elversberg: 2:3">N</span><span class="chip S" title="05.09.26 H vs Union Berlin: 4:0">S</span><span class="chip U" title="12.09.26 A vs Augsburg: 2:2">U</span><span class="chip S" title="20.09.26 H vs Leipzig: 2:0">S</span></dd>
+            <dt>Auswärtsspiele</dt><dd><span class="chip N" title="29.08.26 A vs Elversberg: 2:3">N</span><span class="chip U" title="12.09.26 A vs Augsburg: 2:2">U</span></dd>
+            <dt>xG letzte 5</dt><dd>2,7 erzeugt · 1,0 zugelassen</dd>
+            <dt>Torjäger</dt><dd>P. Schick (4), C. Kofane (2)</dd>
+          </dl>
+        </div>
+      </div>
+      <h3>Direkter Vergleich</h3>
+      <ul class="h2h"><li><span class="muted">28.02.26</span> Leverkusen – Mainz <b>1:1</b></li><li><span class="muted">18.10.25</span> Mainz – Leverkusen <b>3:4</b></li></ul>
+    </div>
+  </details>
+</article>
+<article class="card" id="spiel-4">
+  <details>
+    <summary>
+      <div class="when">Sa 10.10. 15:30</div>
+      <div class="matchup">
+        <span class="t home"><span class="nm">Union Berlin</span> <img class="logo" src="https://assets.dfb.de/uploads/000/018/232/small_union-Berlin.jpg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
+        <span class="tipbox conf-mittel">2:1</span>
+        <span class="t away"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/SV_Elversberg_Logo.svg/500px-SV_Elversberg_Logo.svg.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Elversberg</span></span>
+      </div>
+      
+    <div class="bar" role="img" aria-label="Heimsieg 48 %, Unentschieden 23 %, Auswärtssieg 29 %">
+      <span class="seg h" style="width:47.8%"></span><span class="seg d" style="width:23.0%"></span><span class="seg a" style="width:29.2%"></span>
+    </div>
+    <div class="bar-legend"><span><i class="dot h"></i>Union Berlin 48 %</span><span><i class="dot d"></i>Remis 23 %</span><span><i class="dot a"></i>Elversberg 29 %</span></div>
+      
+      <div class="summary-foot"><span class="badge conf-mittel">Leichter Favorit</span><span class="more">Details</span></div>
+    </summary>
+    <div class="details">
+      
+      <div class="grid2">
+        <section>
+          <h3>Erwartete Tore</h3>
+          <p class="big">1,95 : 1,49</p>
+          <h3>Wahrscheinlichste Ergebnisse</h3>
+          <div class="results"><span class="res">1:1 <small>10 %</small></span><span class="res">2:1 <small>9 %</small></span><span class="res">1:2 <small>7 %</small></span><span class="res">2:2 <small>7 %</small></span><span class="res">2:0 <small>6 %</small></span><span class="res">3:1 <small>6 %</small></span></div>
+        </section>
+        <section>
+          <h3>Welcher Tipp bringt am meisten?</h3>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>2:1</td><td>1,25</td></tr><tr><td>1:0</td><td>1,22</td></tr><tr><td>3:2</td><td>1,20</td></tr><tr><td>4:3</td><td>1,17</td></tr></tbody></table>
+        </section>
+      </div>
+      
+      <div class="grid2 teams">
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://assets.dfb.de/uploads/000/018/232/small_union-Berlin.jpg" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Union Berlin</h4>
+          <p class="muted">17. Platz · 1 Pkt · 4:17 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip S" title="16.05.26 H vs Augsburg: 4:0">S</span><span class="chip U" title="29.08.26 H vs Frankfurt: 3:3">U</span><span class="chip N" title="05.09.26 A vs Leverkusen: 0:4">N</span><span class="chip N" title="11.09.26 H vs S04: 1:3">N</span><span class="chip N" title="18.09.26 A vs Bayern: 0:7">N</span></dd>
+            <dt>Heimspiele</dt><dd><span class="chip U" title="29.08.26 H vs Frankfurt: 3:3">U</span><span class="chip N" title="11.09.26 H vs S04: 1:3">N</span></dd>
+            <dt>xG letzte 5</dt><dd>1,5 erzeugt · 2,7 zugelassen</dd>
+            <dt>Torjäger</dt><dd>T. Skarke (2), Emmanuel Latte Lath (1)</dd>
+          </dl>
+        </div>
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/SV_Elversberg_Logo.svg/500px-SV_Elversberg_Logo.svg.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Elversberg</h4>
+          <p class="muted">7. Platz · 7 Pkt · 8:7 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip S" title="29.08.26 H vs Leverkusen: 3:2">S</span><span class="chip S" title="05.09.26 A vs Gladbach: 4:3">S</span><span class="chip N" title="13.09.26 H vs Bayern: 1:2">N</span><span class="chip U" title="20.09.26 A vs S04: 0:0">U</span></dd>
+            <dt>Auswärtsspiele</dt><dd><span class="chip S" title="05.09.26 A vs Gladbach: 4:3">S</span><span class="chip U" title="20.09.26 A vs S04: 0:0">U</span></dd>
+            <dt>xG letzte 5</dt><dd>1,6 erzeugt · 2,5 zugelassen</dd>
+            <dt>Torjäger</dt><dd>M. Krattenmacher (3), L. Petkov (1)</dd>
+          </dl>
+        </div>
+      </div>
+      <h3>Direkter Vergleich</h3>
+      <ul class="h2h"><li class="muted">Keine Duelle in den letzten zwei Spielzeiten.</li></ul>
+    </div>
+  </details>
+</article>
+<article class="card" id="spiel-5">
+  <details>
+    <summary>
+      <div class="when">Sa 10.10. 15:30</div>
+      <div class="matchup">
+        <span class="t home"><span class="nm">Paderborn</span> <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/e/e3/SC_Paderborn_07_Logo.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
+        <span class="tipbox conf-mittel">1:2</span>
+        <span class="t away"><img class="logo" src="https://i.imgur.com/v0tkpNx.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Stuttgart</span></span>
+      </div>
+      
+    <div class="bar" role="img" aria-label="Heimsieg 27 %, Unentschieden 24 %, Auswärtssieg 49 %">
+      <span class="seg h" style="width:26.6%"></span><span class="seg d" style="width:24.1%"></span><span class="seg a" style="width:49.3%"></span>
+    </div>
+    <div class="bar-legend"><span><i class="dot h"></i>Paderborn 27 %</span><span><i class="dot d"></i>Remis 24 %</span><span><i class="dot a"></i>Stuttgart 49 %</span></div>
+      <p class="alt">Praktisch genauso gut: 0:1</p>
+      <div class="summary-foot"><span class="badge conf-mittel">Leichter Favorit</span><span class="more">Details</span></div>
+    </summary>
+    <div class="details">
+      
+      <div class="grid2">
+        <section>
+          <h3>Erwartete Tore</h3>
+          <p class="big">1,30 : 1,83</p>
+          <h3>Wahrscheinlichste Ergebnisse</h3>
+          <div class="results"><span class="res">1:1 <small>11 %</small></span><span class="res">1:2 <small>10 %</small></span><span class="res">0:1 <small>7 %</small></span><span class="res">0:2 <small>7 %</small></span><span class="res">2:1 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span></div>
+        </section>
+        <section>
+          <h3>Welcher Tipp bringt am meisten?</h3>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>1:2</td><td>1,30</td></tr><tr><td>0:1</td><td>1,28</td></tr><tr><td>2:3</td><td>1,24</td></tr><tr><td>0:2</td><td>1,21</td></tr></tbody></table>
+        </section>
+      </div>
+      
+      <div class="grid2 teams">
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/e/e3/SC_Paderborn_07_Logo.svg" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Paderborn</h4>
+          <p class="muted">12. Platz · 4 Pkt · 3:5 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip U" title="29.08.26 A vs Mainz: 0:0">U</span><span class="chip N" title="05.09.26 H vs Freiburg: 0:1">N</span><span class="chip N" title="12.09.26 A vs Dortmund: 0:3">N</span><span class="chip S" title="20.09.26 H vs Hoffenheim: 3:1">S</span></dd>
+            <dt>Heimspiele</dt><dd><span class="chip N" title="05.09.26 H vs Freiburg: 0:1">N</span><span class="chip S" title="20.09.26 H vs Hoffenheim: 3:1">S</span></dd>
+            <dt>xG letzte 5</dt><dd>0,8 erzeugt · 1,9 zugelassen</dd>
+            <dt>Torjäger</dt><dd>Santiago Castaneda (1), S. Marino (1)</dd>
+          </dl>
+        </div>
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://i.imgur.com/v0tkpNx.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Stuttgart</h4>
+          <p class="muted">15. Platz · 3 Pkt · 6:9 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip U" title="16.05.26 A vs Frankfurt: 2:2">U</span><span class="chip N" title="28.08.26 A vs Bayern: 1:5">N</span><span class="chip S" title="04.09.26 H vs Köln: 4:1">S</span><span class="chip N" title="12.09.26 A vs Hoffenheim: 1:2">N</span><span class="chip N" title="19.09.26 H vs Dortmund: 0:1">N</span></dd>
+            <dt>Auswärtsspiele</dt><dd><span class="chip N" title="28.08.26 A vs Bayern: 1:5">N</span><span class="chip N" title="12.09.26 A vs Hoffenheim: 1:2">N</span></dd>
+            <dt>xG letzte 5</dt><dd>2,0 erzeugt · 3,0 zugelassen</dd>
+            <dt>Torjäger</dt><dd>J. Vagnoman (2), B. El Khannouss (1)</dd>
+          </dl>
+        </div>
+      </div>
+      <h3>Direkter Vergleich</h3>
+      <ul class="h2h"><li class="muted">Keine Duelle in den letzten zwei Spielzeiten.</li></ul>
+    </div>
+  </details>
+</article>
+<article class="card" id="spiel-6">
+  <details>
+    <summary>
+      <div class="when">Sa 10.10. 18:30</div>
+      <div class="matchup">
+        <span class="t home"><span class="nm">Leipzig</span> <img class="logo" src="https://i.imgur.com/Rpwsjz1.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
+        <span class="tipbox conf-hoch">2:1</span>
+        <span class="t away"><img class="logo" src="https://i.imgur.com/X8NFkOb.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Frankfurt</span></span>
+      </div>
+      
+    <div class="bar" role="img" aria-label="Heimsieg 63 %, Unentschieden 19 %, Auswärtssieg 18 %">
+      <span class="seg h" style="width:63.2%"></span><span class="seg d" style="width:18.8%"></span><span class="seg a" style="width:18.0%"></span>
+    </div>
+    <div class="bar-legend"><span><i class="dot h"></i>Leipzig 63 %</span><span><i class="dot d"></i>Remis 19 %</span><span><i class="dot a"></i>Frankfurt 18 %</span></div>
+      
+      <div class="summary-foot"><span class="badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
+    </summary>
+    <div class="details">
+      
+      <div class="grid2">
+        <section>
+          <h3>Erwartete Tore</h3>
+          <p class="big">2,52 : 1,31</p>
+          <h3>Wahrscheinlichste Ergebnisse</h3>
+          <div class="results"><span class="res">2:1 <small>9 %</small></span><span class="res">1:1 <small>8 %</small></span><span class="res">3:1 <small>8 %</small></span><span class="res">2:0 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span><span class="res">3:0 <small>6 %</small></span></div>
+        </section>
+        <section>
+          <h3>Welcher Tipp bringt am meisten?</h3>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>2:1</td><td>1,56</td></tr><tr><td>3:1</td><td>1,52</td></tr><tr><td>1:0</td><td>1,52</td></tr><tr><td>3:2</td><td>1,52</td></tr></tbody></table>
+        </section>
+      </div>
+      
+      <div class="grid2 teams">
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://i.imgur.com/Rpwsjz1.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Leipzig</h4>
+          <p class="muted">9. Platz · 6 Pkt · 9:5 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip N" title="16.05.26 A vs Freiburg: 1:4">N</span><span class="chip S" title="29.08.26 H vs Gladbach: 3:0">S</span><span class="chip N" title="05.09.26 A vs Bremen: 1:3">N</span><span class="chip S" title="13.09.26 H vs HSV: 5:0">S</span><span class="chip N" title="20.09.26 A vs Leverkusen: 0:2">N</span></dd>
+            <dt>Heimspiele</dt><dd><span class="chip S" title="29.08.26 H vs Gladbach: 3:0">S</span><span class="chip S" title="13.09.26 H vs HSV: 5:0">S</span></dd>
+            <dt>xG letzte 5</dt><dd>2,1 erzeugt · 1,5 zugelassen</dd>
+            <dt>Torjäger</dt><dd>R. Baku (2), A. Nusa (2)</dd>
+          </dl>
+        </div>
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://i.imgur.com/X8NFkOb.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Frankfurt</h4>
+          <p class="muted">10. Platz · 5 Pkt · 9:10 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip U" title="16.05.26 H vs Stuttgart: 2:2">U</span><span class="chip U" title="29.08.26 A vs Union Berlin: 3:3">U</span><span class="chip N" title="06.09.26 H vs Augsburg: 1:4">N</span><span class="chip S" title="12.09.26 A vs Mainz: 3:1">S</span><span class="chip U" title="19.09.26 H vs Freiburg: 2:2">U</span></dd>
+            <dt>Auswärtsspiele</dt><dd><span class="chip U" title="29.08.26 A vs Union Berlin: 3:3">U</span><span class="chip S" title="12.09.26 A vs Mainz: 3:1">S</span></dd>
+            <dt>xG letzte 5</dt><dd>2,4 erzeugt · 2,1 zugelassen</dd>
+            <dt>Torjäger</dt><dd>Younes Ebnoutalib (4), J. Burkardt (3)</dd>
+          </dl>
+        </div>
+      </div>
+      <h3>Direkter Vergleich</h3>
+      <ul class="h2h"><li><span class="muted">18.04.26</span> Frankfurt – Leipzig <b>1:3</b></li><li><span class="muted">06.12.25</span> Leipzig – Frankfurt <b>6:0</b></li></ul>
+    </div>
+  </details>
+</article>
+<article class="card" id="spiel-7">
+  <details>
+    <summary>
+      <div class="when">So 11.10. 15:30</div>
+      <div class="matchup">
+        <span class="t home"><span class="nm">Köln</span> <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/0/01/1._FC_Koeln_Logo_2014%E2%80%93.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
+        <span class="tipbox conf-mittel">2:1</span>
+        <span class="t away"><img class="logo" src="https://i.imgur.com/KSIk0Eu.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Gladbach</span></span>
+      </div>
+      
+    <div class="bar" role="img" aria-label="Heimsieg 55 %, Unentschieden 22 %, Auswärtssieg 24 %">
+      <span class="seg h" style="width:54.7%"></span><span class="seg d" style="width:21.5%"></span><span class="seg a" style="width:23.8%"></span>
+    </div>
+    <div class="bar-legend"><span><i class="dot h"></i>Köln 55 %</span><span><i class="dot d"></i>Remis 22 %</span><span><i class="dot a"></i>Gladbach 24 %</span></div>
+      
+      <div class="summary-foot"><span class="badge conf-mittel">Leichter Favorit</span><span class="more">Details</span></div>
+    </summary>
+    <div class="details">
+      
+      <div class="grid2">
+        <section>
+          <h3>Erwartete Tore</h3>
+          <p class="big">2,17 : 1,40</p>
+          <h3>Wahrscheinlichste Ergebnisse</h3>
+          <div class="results"><span class="res">2:1 <small>9 %</small></span><span class="res">1:1 <small>9 %</small></span><span class="res">3:1 <small>7 %</small></span><span class="res">2:0 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span><span class="res">1:2 <small>6 %</small></span></div>
+        </section>
+        <section>
+          <h3>Welcher Tipp bringt am meisten?</h3>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>2:1</td><td>1,40</td></tr><tr><td>1:0</td><td>1,36</td></tr><tr><td>3:2</td><td>1,35</td></tr><tr><td>3:1</td><td>1,33</td></tr></tbody></table>
+        </section>
+      </div>
+      
+      <div class="grid2 teams">
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/0/01/1._FC_Koeln_Logo_2014%E2%80%93.svg" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Köln</h4>
+          <p class="muted">13. Platz · 4 Pkt · 6:9 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip N" title="16.05.26 A vs Bayern: 1:5">N</span><span class="chip S" title="29.08.26 H vs Hoffenheim: 3:2">S</span><span class="chip N" title="04.09.26 A vs Stuttgart: 1:4">N</span><span class="chip U" title="12.09.26 H vs Bremen: 1:1">U</span><span class="chip N" title="19.09.26 A vs HSV: 1:2">N</span></dd>
+            <dt>Heimspiele</dt><dd><span class="chip S" title="29.08.26 H vs Hoffenheim: 3:2">S</span><span class="chip U" title="12.09.26 H vs Bremen: 1:1">U</span></dd>
+            <dt>xG letzte 5</dt><dd>2,0 erzeugt · 2,3 zugelassen</dd>
+            <dt>Torjäger</dt><dd>Thijs Dallinga (2), S. El Mala (1)</dd>
+          </dl>
+        </div>
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://i.imgur.com/KSIk0Eu.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Gladbach</h4>
+          <p class="muted">18. Platz · 0 Pkt · 6:16 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip S" title="16.05.26 H vs Hoffenheim: 4:0">S</span><span class="chip N" title="29.08.26 A vs Leipzig: 0:3">N</span><span class="chip N" title="05.09.26 H vs Elversberg: 3:4">N</span><span class="chip N" title="12.09.26 A vs Freiburg: 0:5">N</span><span class="chip N" title="19.09.26 H vs Mainz: 3:4">N</span></dd>
+            <dt>Auswärtsspiele</dt><dd><span class="chip N" title="29.08.26 A vs Leipzig: 0:3">N</span><span class="chip N" title="12.09.26 A vs Freiburg: 0:5">N</span></dd>
+            <dt>xG letzte 5</dt><dd>1,7 erzeugt · 2,8 zugelassen</dd>
+            <dt>Torjäger</dt><dd>H. Bolin (2), J. Scally (1)</dd>
+          </dl>
+        </div>
+      </div>
+      <h3>Direkter Vergleich</h3>
+      <ul class="h2h"><li><span class="muted">21.03.26</span> Köln – Gladbach <b>3:3</b></li><li><span class="muted">08.11.25</span> Gladbach – Köln <b>3:1</b></li></ul>
+    </div>
+  </details>
+</article>
+<article class="card" id="spiel-8">
+  <details>
+    <summary>
+      <div class="when">So 11.10. 17:30</div>
+      <div class="matchup">
+        <span class="t home"><span class="nm">Freiburg</span> <img class="logo" src="https://i.imgur.com/r3mvi0h.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
+        <span class="tipbox conf-hoch">2:1</span>
+        <span class="t away"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/9/97/FC_Schalke_04_Logo.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">S04</span></span>
+      </div>
+      
+    <div class="bar" role="img" aria-label="Heimsieg 65 %, Unentschieden 20 %, Auswärtssieg 16 %">
+      <span class="seg h" style="width:64.6%"></span><span class="seg d" style="width:19.8%"></span><span class="seg a" style="width:15.7%"></span>
+    </div>
+    <div class="bar-legend"><span><i class="dot h"></i>Freiburg 65 %</span><span><i class="dot d"></i>Remis 20 %</span><span><i class="dot a"></i>S04 16 %</span></div>
+      <p class="alt">Praktisch genauso gut: 1:0</p>
+      <div class="summary-foot"><span class="badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
+    </summary>
+    <div class="details">
+      
+      <div class="grid2">
+        <section>
+          <h3>Erwartete Tore</h3>
+          <p class="big">2,30 : 1,06</p>
+          <h3>Wahrscheinlichste Ergebnisse</h3>
+          <div class="results"><span class="res">2:1 <small>10 %</small></span><span class="res">2:0 <small>9 %</small></span><span class="res">1:1 <small>9 %</small></span><span class="res">1:0 <small>7 %</small></span><span class="res">3:1 <small>7 %</small></span><span class="res">3:0 <small>7 %</small></span></div>
+        </section>
+        <section>
+          <h3>Welcher Tipp bringt am meisten?</h3>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>2:1</td><td>1,61</td></tr><tr><td>1:0</td><td>1,59</td></tr><tr><td>2:0</td><td>1,58</td></tr><tr><td>3:1</td><td>1,56</td></tr></tbody></table>
+        </section>
+      </div>
+      
+      <div class="grid2 teams">
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://i.imgur.com/r3mvi0h.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> Freiburg</h4>
+          <p class="muted">3. Platz · 10 Pkt · 12:3 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip S" title="16.05.26 H vs Leipzig: 4:1">S</span><span class="chip S" title="30.08.26 H vs Bremen: 4:1">S</span><span class="chip S" title="05.09.26 A vs Paderborn: 1:0">S</span><span class="chip S" title="12.09.26 H vs Gladbach: 5:0">S</span><span class="chip U" title="19.09.26 A vs Frankfurt: 2:2">U</span></dd>
+            <dt>Heimspiele</dt><dd><span class="chip S" title="30.08.26 H vs Bremen: 4:1">S</span><span class="chip S" title="12.09.26 H vs Gladbach: 5:0">S</span></dd>
+            <dt>xG letzte 5</dt><dd>2,2 erzeugt · 1,1 zugelassen</dd>
+            <dt>Torjäger</dt><dd>Y. Suzuki (4), I. Matanovic (3)</dd>
+          </dl>
+        </div>
+        
+        <div class="team-col">
+          <h4><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/9/97/FC_Schalke_04_Logo.png" alt="" width="20" height="20" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> S04</h4>
+          <p class="muted">11. Platz · 5 Pkt · 3:4 Tore</p>
+          <dl>
+            <dt>Letzte 5</dt><dd><span class="chip N" title="30.08.26 A vs Augsburg: 0:3">N</span><span class="chip U" title="05.09.26 H vs Bayern: 0:0">U</span><span class="chip S" title="11.09.26 A vs Union Berlin: 3:1">S</span><span class="chip U" title="20.09.26 H vs Elversberg: 0:0">U</span></dd>
+            <dt>Auswärtsspiele</dt><dd><span class="chip N" title="30.08.26 A vs Augsburg: 0:3">N</span><span class="chip S" title="11.09.26 A vs Union Berlin: 3:1">S</span></dd>
+            <dt>xG letzte 5</dt><dd>1,6 erzeugt · 2,6 zugelassen</dd>
+            <dt>Torjäger</dt><dd>R. Gosens (1), A. Aouchiche (1)</dd>
+          </dl>
+        </div>
+      </div>
+      <h3>Direkter Vergleich</h3>
+      <ul class="h2h"><li class="muted">Keine Duelle in den letzten zwei Spielzeiten.</li></ul>
+    </div>
+  </details>
+</article>
+
+  <section class="panel">
+    <h2>Bilanz der Empfehlungen</h2>
+    <p class="muted">Sobald die ersten Spiele mit Empfehlung gespielt sind, steht hier, wie viele Punkte die Tipps gebracht hätten.</p>
+  </section>
+
+  <section class="panel about">
+    <h2>So entstehen die Tipps</h2>
+    <ol>
+      <li><b>Teamstärke:</b> Aus allen Spielen dieser und der letzten Saison wird für jedes Team eine Angriffs- und Abwehrstärke berechnet. Neuere Spiele zählen mehr. Statt nur der Tore zählt vor allem <b>xG</b> (Expected Goals), also die Qualität der Torchancen. Das sagt die Zukunft besser voraus als das Ergebnis allein.</li>
+      <li><b>Wettquoten:</b> Wenn verfügbar, fließen die Quoten mehrerer Wettanbieter mit ein (65 %). Sie enthalten Infos zu Verletzungen und Aufstellungen.</li>
+      <li><b>Ergebnis-Wahrscheinlichkeiten:</b> Aus den erwarteten Toren wird für jedes Ergebnis (0:0, 1:0, 2:1 …) eine Wahrscheinlichkeit berechnet.</li>
+      <li><b>Bester Tipp:</b> Für jeden möglichen Tipp werden die durchschnittlich zu erwartenden Kicktipp-Punkte (4/3/2) berechnet. Empfohlen wird der Tipp mit dem höchsten Wert. Das ist nicht immer das wahrscheinlichste Ergebnis.</li>
+    </ol>
+    <p class="muted">Getestet an den Saisons 24/25 und 25/26: ca. 1,3 Punkte pro Spiel und die richtige Tendenz in etwa jedem zweiten Spiel. Zum Vergleich: Immer „2:1 Heimsieg“ bringt ca. 1,07 Punkte. Fußball bleibt Fußball. 🍀</p>
+    <p class="muted small-text">Daten: OpenLigaDB, Understat.</p>
+  </section>
+</main>
+</body>
+</html>
