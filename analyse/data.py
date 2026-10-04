@@ -1,4 +1,4 @@
-"""Daten holen: Spielplan/Ergebnisse (OpenLigaDB), xG (Understat), Wettquoten (The Odds API)."""
+"""Daten holen: Spielplan/Ergebnisse (OpenLigaDB) und xG (Understat)."""
 
 import difflib
 import gzip
@@ -9,7 +9,7 @@ import unicodedata
 import urllib.request
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 USER_AGENT = "Mozilla/5.0 (Kicktipp-Analyse)"
 
@@ -119,7 +119,7 @@ def attach_understat_xg(season, matches, teams):
     return n
 
 
-# ---------------------------------------------------------------- Wettquoten
+# ---------------------------------------------------------------- Teamnamen vergleichen
 
 _ALIASES = {"munich": "munchen", "cologne": "koln", "mgladbach": "monchengladbach", "leverkusen": "leverkusen"}
 _NOISE = {"fc", "sc", "sv", "vfb", "vfl", "tsg", "fsv", "bv", "1", "04", "05", "07", "1846", "1899", "borussia", "bayer", "rb", "1."}
@@ -139,60 +139,3 @@ def _similar(a, b):
         return 1.0
     return difflib.SequenceMatcher(None, a, b).ratio()
 
-
-def load_odds(fixtures, teams):
-    """Holt 1X2- und Über/Unter-Quoten (The Odds API) und rechnet sie in faire Wahrscheinlichkeiten um.
-    Rückgabe: {match_id: {"p_home","p_draw","p_away","p_over25"(optional),"n_books"}}"""
-    key = os.environ.get("ODDS_API_KEY")
-    if not key:
-        print("Kein ODDS_API_KEY gesetzt – Analyse ohne Wettquoten.")
-        return {}
-    url = (
-        "https://api.the-odds-api.com/v4/sports/soccer_germany_bundesliga/odds"
-        f"?apiKey={key}&regions=eu&markets=h2h,totals&oddsFormat=decimal"
-    )
-    try:
-        events = _get_json(url)
-    except Exception as e:
-        print(f"Wettquoten nicht abrufbar: {e}")
-        return {}
-
-    result = {}
-    for m in fixtures:
-        home, away = teams[m.home_id].name, teams[m.away_id].name
-        best, best_score = None, 0.0
-        for ev in events:
-            if abs(_parse_utc(ev["commence_time"]) - m.kickoff_utc) > timedelta(hours=3):
-                continue
-            score = _similar(ev["home_team"], home) + _similar(ev["away_team"], away)
-            if score > best_score:
-                best, best_score = ev, score
-        if not best or best_score < 1.2:
-            continue
-
-        h2h, over = [], []
-        for bm in best.get("bookmakers", []):
-            for mk in bm.get("markets", []):
-                outs = mk.get("outcomes", [])
-                if mk["key"] == "h2h" and len(outs) == 3:
-                    price = {o["name"]: o["price"] for o in outs}
-                    try:
-                        inv = [1 / price[best["home_team"]], 1 / price["Draw"], 1 / price[best["away_team"]]]
-                    except KeyError:
-                        continue
-                    total = sum(inv)
-                    h2h.append([x / total for x in inv])
-                elif mk["key"] == "totals":
-                    by_name = {o["name"]: o for o in outs if o.get("point") == 2.5}
-                    if "Over" in by_name and "Under" in by_name:
-                        io, iu = 1 / by_name["Over"]["price"], 1 / by_name["Under"]["price"]
-                        over.append(io / (io + iu))
-        if not h2h:
-            continue
-        avg = [sum(x[i] for x in h2h) / len(h2h) for i in range(3)]
-        entry = {"p_home": avg[0], "p_draw": avg[1], "p_away": avg[2], "n_books": len(h2h)}
-        if over:
-            entry["p_over25"] = sum(over) / len(over)
-        result[m.match_id] = entry
-    print(f"Wettquoten für {len(result)}/{len(fixtures)} Spiele gefunden.")
-    return result

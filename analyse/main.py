@@ -110,7 +110,6 @@ def main():
     team_ids = {m.home_id for m in cur} | {m.away_id for m in cur}
     promoted = team_ids - {m.home_id for m in prev}
     ratings = model.fit_ratings(prev + cur, now, team_ids, promoted)
-    odds = data.load_odds([m for m in fixtures if not m.finished], teams)
     tab = table(cur)
     all_matches = prev + cur
 
@@ -121,11 +120,8 @@ def main():
 
     games = []
     for m in fixtures:
-        model_l = ratings.expected_goals(m.home_id, m.away_id)
-        mk = odds.get(m.match_id)
-        market_l = model.lambdas_from_market(mk["p_home"], mk["p_away"], mk.get("p_over25")) if mk else None
-        final_l = model.blend(model_l, market_l) if market_l else model_l
-        mat = model.score_matrix(*final_l)
+        lambdas = ratings.expected_goals(m.home_id, m.away_id)
+        mat = model.score_matrix(*lambdas)
         ph, pd, pa = model.outcome_probs(mat)
         evs = model.expected_points(mat)
         tip = evs[0][0]
@@ -133,11 +129,9 @@ def main():
         if locked:
             tip = tuple(old[m.match_id]["tipp"])
         likely = sorted(((i, j, mat[i][j]) for i in range(6) for j in range(6)), key=lambda x: -x[2])[:6]
-        model_probs = model.outcome_probs(model.score_matrix(*model_l))
         games.append(dict(
             match=m, home=teams[m.home_id], away=teams[m.away_id],
-            tip=tip, locked=locked, evs=evs[:4], probs=(ph, pd, pa), lambdas=final_l,
-            model_probs=model_probs, market=mk, likely=likely,
+            tip=tip, locked=locked, evs=evs[:4], probs=(ph, pd, pa), lambdas=lambdas, likely=likely,
             tab_home=tab.get(m.home_id), tab_away=tab.get(m.away_id),
             form_home=team_form(all_matches, m.home_id), form_away=team_form(all_matches, m.away_id),
             venue_home=team_form(cur, m.home_id, venue="heim"), venue_away=team_form(cur, m.away_id, venue="auswärts"),
@@ -155,7 +149,7 @@ def main():
     history = evaluate_history(load_predictions(), {m.match_id: m for m in cur + prev})
     DOCS.mkdir(exist_ok=True)
     html = render.page(season=season, matchday=md, games=games, teams=teams, table=tab, history=history,
-                       generated=now, has_odds=bool(odds))
+                       generated=now)
     (DOCS / "index.html").write_text(html)
     (DOCS / f"spieltag-{key}.html").write_text(html)
     print(f"Fertig: Spieltag {md}, {len(games)} Spiele → docs/index.html")

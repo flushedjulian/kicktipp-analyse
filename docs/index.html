@@ -111,6 +111,36 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
   h1{font-size:28px}
   .bar-legend{font-size:11px}
 }
+
+.alt:empty{display:none}
+.mine{text-align:center;font-size:13px;color:var(--accent);font-weight:600;margin:6px 0 0}
+.ov-hint{margin:10px 0 0}
+.ov-hint a{color:var(--accent);font-weight:600}
+.ov-row.has-mine .tipbox{box-shadow:0 0 0 2px var(--accent)}
+.odds>summary{display:flex;justify-content:space-between;align-items:center;padding:0}
+.odds>summary h2{margin:0}
+.odds[open]>summary{margin-bottom:10px}
+.opt{font-size:13px;font-weight:500}
+.odds-head,.odds-row{display:grid;grid-template-columns:1fr 58px 58px 58px 70px;gap:6px;align-items:center}
+.odds-head{font-size:12px;color:var(--muted);font-weight:600;text-align:center;margin-top:8px}
+.odds-row{padding:6px 0;border-top:1px solid var(--line)}
+.odds-match{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.odd{width:100%;padding:8px 4px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:16px;text-align:center;font-variant-numeric:tabular-nums}
+.odd:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.odd.bad{border-color:var(--loss)}
+.odd:disabled{opacity:.45}
+.odds-state{font-size:12px;color:var(--muted);text-align:right}
+.odds-state.ok{color:var(--hoch);font-weight:700}
+.linkbtn{background:none;border:0;padding:10px 0 0;color:var(--accent);font:inherit;font-size:14px;cursor:pointer}
+@media (max-width:560px){
+  .odds-head,.odds-row{grid-template-columns:1fr 52px 52px 52px;row-gap:4px}
+  .odds-match{grid-column:1/-1}
+  .odds-head span:first-child{display:none}
+  .odds-head{grid-template-columns:1fr 52px 52px 52px}
+  .odds-head span:nth-child(2){grid-column:2}
+  .odds-head span:last-child{display:none}
+  .odds-state{grid-column:1;grid-row:2;text-align:left}
+}
 </style>
 </head>
 <body>
@@ -118,51 +148,59 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
   <header>
     <p class="eyebrow">Bundesliga 2026/27</p>
     <h1>5. Spieltag</h1>
-    <p class="muted">Fr 09.10. 20:30 bis So 11.10. 17:30 · aktualisiert 04.10. 11:57 Uhr</p>
-    <p class="note warn">Ohne Wettquoten berechnet – nur eigenes Modell.</p>
+    <p class="muted">Fr 09.10. 20:30 bis So 11.10. 17:30 · aktualisiert 04.10. 12:06 Uhr</p>
   </header>
 
   <section class="panel">
     <h2>Alle Tipps auf einen Blick</h2>
-    <div class="overview"><a class="ov-row" href="#spiel-0"><span class="muted ov-when">Fr 09.10. 20:30</span><span class="ov-h">Dortmund</span><span class="tipbox small conf-hoch">1:0</span><span class="ov-a">Bremen</span></a><a class="ov-row" href="#spiel-1"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Hoffenheim</span><span class="tipbox small conf-hoch">2:1</span><span class="ov-a">HSV</span></a><a class="ov-row" href="#spiel-2"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Augsburg</span><span class="tipbox small conf-hoch">1:2</span><span class="ov-a">Bayern</span></a><a class="ov-row" href="#spiel-3"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Mainz</span><span class="tipbox small conf-niedrig">1:2</span><span class="ov-a">Leverkusen</span></a><a class="ov-row" href="#spiel-4"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Union Berlin</span><span class="tipbox small conf-mittel">2:1</span><span class="ov-a">Elversberg</span></a><a class="ov-row" href="#spiel-5"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Paderborn</span><span class="tipbox small conf-mittel">1:2</span><span class="ov-a">Stuttgart</span></a><a class="ov-row" href="#spiel-6"><span class="muted ov-when">Sa 10.10. 18:30</span><span class="ov-h">Leipzig</span><span class="tipbox small conf-hoch">2:1</span><span class="ov-a">Frankfurt</span></a><a class="ov-row" href="#spiel-7"><span class="muted ov-when">So 11.10. 15:30</span><span class="ov-h">Köln</span><span class="tipbox small conf-mittel">2:1</span><span class="ov-a">Gladbach</span></a><a class="ov-row" href="#spiel-8"><span class="muted ov-when">So 11.10. 17:30</span><span class="ov-h">Freiburg</span><span class="tipbox small conf-hoch">2:1</span><span class="ov-a">S04</span></a></div>
+    <div class="overview"><a class="ov-row" href="#spiel-0" data-idx="0"><span class="muted ov-when">Fr 09.10. 20:30</span><span class="ov-h">Dortmund</span><span class="tipbox small js-ov-tip conf-hoch">1:0</span><span class="ov-a">Bremen</span></a><a class="ov-row" href="#spiel-1" data-idx="1"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Hoffenheim</span><span class="tipbox small js-ov-tip conf-hoch">2:1</span><span class="ov-a">HSV</span></a><a class="ov-row" href="#spiel-2" data-idx="2"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Augsburg</span><span class="tipbox small js-ov-tip conf-hoch">1:2</span><span class="ov-a">Bayern</span></a><a class="ov-row" href="#spiel-3" data-idx="3"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Mainz</span><span class="tipbox small js-ov-tip conf-niedrig">1:2</span><span class="ov-a">Leverkusen</span></a><a class="ov-row" href="#spiel-4" data-idx="4"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Union Berlin</span><span class="tipbox small js-ov-tip conf-mittel">2:1</span><span class="ov-a">Elversberg</span></a><a class="ov-row" href="#spiel-5" data-idx="5"><span class="muted ov-when">Sa 10.10. 15:30</span><span class="ov-h">Paderborn</span><span class="tipbox small js-ov-tip conf-mittel">1:2</span><span class="ov-a">Stuttgart</span></a><a class="ov-row" href="#spiel-6" data-idx="6"><span class="muted ov-when">Sa 10.10. 18:30</span><span class="ov-h">Leipzig</span><span class="tipbox small js-ov-tip conf-hoch">2:1</span><span class="ov-a">Frankfurt</span></a><a class="ov-row" href="#spiel-7" data-idx="7"><span class="muted ov-when">So 11.10. 15:30</span><span class="ov-h">Köln</span><span class="tipbox small js-ov-tip conf-mittel">2:1</span><span class="ov-a">Gladbach</span></a><a class="ov-row" href="#spiel-8" data-idx="8"><span class="muted ov-when">So 11.10. 17:30</span><span class="ov-h">Freiburg</span><span class="tipbox small js-ov-tip conf-hoch">2:1</span><span class="ov-a">S04</span></a></div>
     <p class="legend"><span class="badge conf-hoch">Klare Sache</span><span class="badge conf-mittel">Leichter Favorit</span><span class="badge conf-niedrig">Offenes Spiel</span></p>
+    <p class="muted small-text ov-hint">💡 Mit Wettquoten werden die Tipps genauer: <a href="#quoten" class="js-open-odds">Quoten eintragen</a></p>
   </section>
+
+  <details class="panel odds" id="quoten">
+    <summary><h2>Quoten eintragen <span class="muted opt">optional</span></h2><span class="more">öffnen</span></summary>
+    <p class="muted small-text">Quoten für Heimsieg (1), Unentschieden (X) und Auswärtssieg (2) eintragen, z.&nbsp;B. aus Kicktipp oder von einer Wettseite. Sobald alle drei Felder eines Spiels ausgefüllt sind, werden Tipp und Wahrscheinlichkeiten neu berechnet. Die Quoten bleiben auf diesem Gerät gespeichert.</p>
+    <div class="odds-head"><span></span><span>1</span><span>X</span><span>2</span><span></span></div>
+    <div class="odds-row" data-idx="0"><span class="odds-match">Dortmund – Bremen</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Dortmund"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Bremen"><span class="odds-state"></span></div><div class="odds-row" data-idx="1"><span class="odds-match">Hoffenheim – HSV</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Hoffenheim"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg HSV"><span class="odds-state"></span></div><div class="odds-row" data-idx="2"><span class="odds-match">Augsburg – Bayern</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Augsburg"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Bayern"><span class="odds-state"></span></div><div class="odds-row" data-idx="3"><span class="odds-match">Mainz – Leverkusen</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Mainz"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Leverkusen"><span class="odds-state"></span></div><div class="odds-row" data-idx="4"><span class="odds-match">Union Berlin – Elversberg</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Union Berlin"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Elversberg"><span class="odds-state"></span></div><div class="odds-row" data-idx="5"><span class="odds-match">Paderborn – Stuttgart</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Paderborn"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Stuttgart"><span class="odds-state"></span></div><div class="odds-row" data-idx="6"><span class="odds-match">Leipzig – Frankfurt</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Leipzig"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Frankfurt"><span class="odds-state"></span></div><div class="odds-row" data-idx="7"><span class="odds-match">Köln – Gladbach</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Köln"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Gladbach"><span class="odds-state"></span></div><div class="odds-row" data-idx="8"><span class="odds-match">Freiburg – S04</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Freiburg"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg S04"><span class="odds-state"></span></div>
+    <button type="button" class="linkbtn js-clear">Alle Quoten löschen</button>
+  </details>
 
   <h2 class="section-title">Spiele im Detail</h2>
   <p class="muted hint">Auf ein Spiel tippen, um die Analyse aufzuklappen.</p>
   
-<article class="card" id="spiel-0">
+<article class="card" id="spiel-0" data-idx="0">
   <details>
     <summary>
       <div class="when">Fr 09.10. 20:30</div>
       <div class="matchup">
         <span class="t home"><span class="nm">Dortmund</span> <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Borussia_Dortmund_logo.svg/960px-Borussia_Dortmund_logo.svg.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
-        <span class="tipbox conf-hoch">1:0</span>
+        <span class="tipbox js-tip conf-hoch"><span class="js-tiptext">1:0</span></span>
         <span class="t away"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/b/be/SV-Werder-Bremen-Logo.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Bremen</span></span>
       </div>
-      
+      <div class="js-bar">
     <div class="bar" role="img" aria-label="Heimsieg 70 %, Unentschieden 19 %, Auswärtssieg 12 %">
       <span class="seg h" style="width:69.5%"></span><span class="seg d" style="width:18.9%"></span><span class="seg a" style="width:11.5%"></span>
     </div>
-    <div class="bar-legend"><span><i class="dot h"></i>Dortmund 70 %</span><span><i class="dot d"></i>Remis 19 %</span><span><i class="dot a"></i>Bremen 12 %</span></div>
-      <p class="alt">Praktisch genauso gut: 2:0, 2:1</p>
-      <div class="summary-foot"><span class="badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
+    <div class="bar-legend"><span><i class="dot h"></i>Dortmund 70 %</span><span><i class="dot d"></i>Remis 19 %</span><span><i class="dot a"></i>Bremen 12 %</span></div></div>
+      <p class="alt js-alt">Praktisch genauso gut: 2:0, 2:1</p>
+      <p class="mine js-mine" hidden>✍️ mit deinen Quoten berechnet</p>
+      <div class="summary-foot"><span class="badge js-badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
     </summary>
     <div class="details">
-      
+      <p class="note js-draw" hidden>⚖️ Remis-Tipp: Beide Teams liegen sehr eng beieinander.</p>
       <div class="grid2">
         <section>
           <h3>Erwartete Tore</h3>
-          <p class="big">2,26 : 0,82</p>
+          <p class="big js-xg">2,26 : 0,82</p>
           <h3>Wahrscheinlichste Ergebnisse</h3>
-          <div class="results"><span class="res">2:0 <small>12 %</small></span><span class="res">1:0 <small>10 %</small></span><span class="res">2:1 <small>10 %</small></span><span class="res">1:1 <small>9 %</small></span><span class="res">3:0 <small>9 %</small></span><span class="res">3:1 <small>7 %</small></span></div>
+          <div class="results js-likely"><span class="res">2:0 <small>12 %</small></span><span class="res">1:0 <small>10 %</small></span><span class="res">2:1 <small>10 %</small></span><span class="res">1:1 <small>9 %</small></span><span class="res">3:0 <small>9 %</small></span><span class="res">3:1 <small>7 %</small></span></div>
         </section>
         <section>
           <h3>Welcher Tipp bringt am meisten?</h3>
-          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>1:0</td><td>1,72</td></tr><tr><td>2:0</td><td>1,72</td></tr><tr><td>2:1</td><td>1,72</td></tr><tr><td>3:1</td><td>1,67</td></tr></tbody></table>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody class="js-ev"><tr class=best><td>1:0</td><td>1,72</td></tr><tr><td>2:0</td><td>1,72</td></tr><tr><td>2:1</td><td>1,72</td></tr><tr><td>3:1</td><td>1,67</td></tr></tbody></table>
         </section>
       </div>
-      
       <div class="grid2 teams">
         
         <div class="team-col">
@@ -192,38 +230,38 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     </div>
   </details>
 </article>
-<article class="card" id="spiel-1">
+<article class="card" id="spiel-1" data-idx="1">
   <details>
     <summary>
       <div class="when">Sa 10.10. 15:30</div>
       <div class="matchup">
         <span class="t home"><span class="nm">Hoffenheim</span> <img class="logo" src="https://i.imgur.com/gF0PfEl.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
-        <span class="tipbox conf-hoch">2:1</span>
+        <span class="tipbox js-tip conf-hoch"><span class="js-tiptext">2:1</span></span>
         <span class="t away"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/f/f7/Hamburger_SV_logo.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">HSV</span></span>
       </div>
-      
+      <div class="js-bar">
     <div class="bar" role="img" aria-label="Heimsieg 66 %, Unentschieden 19 %, Auswärtssieg 15 %">
       <span class="seg h" style="width:65.9%"></span><span class="seg d" style="width:18.8%"></span><span class="seg a" style="width:15.2%"></span>
     </div>
-    <div class="bar-legend"><span><i class="dot h"></i>Hoffenheim 66 %</span><span><i class="dot d"></i>Remis 19 %</span><span><i class="dot a"></i>HSV 15 %</span></div>
-      <p class="alt">Praktisch genauso gut: 1:0</p>
-      <div class="summary-foot"><span class="badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
+    <div class="bar-legend"><span><i class="dot h"></i>Hoffenheim 66 %</span><span><i class="dot d"></i>Remis 19 %</span><span><i class="dot a"></i>HSV 15 %</span></div></div>
+      <p class="alt js-alt">Praktisch genauso gut: 1:0</p>
+      <p class="mine js-mine" hidden>✍️ mit deinen Quoten berechnet</p>
+      <div class="summary-foot"><span class="badge js-badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
     </summary>
     <div class="details">
-      
+      <p class="note js-draw" hidden>⚖️ Remis-Tipp: Beide Teams liegen sehr eng beieinander.</p>
       <div class="grid2">
         <section>
           <h3>Erwartete Tore</h3>
-          <p class="big">2,43 : 1,11</p>
+          <p class="big js-xg">2,43 : 1,11</p>
           <h3>Wahrscheinlichste Ergebnisse</h3>
-          <div class="results"><span class="res">2:1 <small>10 %</small></span><span class="res">2:0 <small>9 %</small></span><span class="res">1:1 <small>8 %</small></span><span class="res">3:1 <small>8 %</small></span><span class="res">3:0 <small>7 %</small></span><span class="res">1:0 <small>7 %</small></span></div>
+          <div class="results js-likely"><span class="res">2:1 <small>10 %</small></span><span class="res">2:0 <small>9 %</small></span><span class="res">1:1 <small>8 %</small></span><span class="res">3:1 <small>8 %</small></span><span class="res">3:0 <small>7 %</small></span><span class="res">1:0 <small>7 %</small></span></div>
         </section>
         <section>
           <h3>Welcher Tipp bringt am meisten?</h3>
-          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>2:1</td><td>1,63</td></tr><tr><td>1:0</td><td>1,60</td></tr><tr><td>2:0</td><td>1,60</td></tr><tr><td>3:1</td><td>1,59</td></tr></tbody></table>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody class="js-ev"><tr class=best><td>2:1</td><td>1,63</td></tr><tr><td>1:0</td><td>1,60</td></tr><tr><td>2:0</td><td>1,60</td></tr><tr><td>3:1</td><td>1,59</td></tr></tbody></table>
         </section>
       </div>
-      
       <div class="grid2 teams">
         
         <div class="team-col">
@@ -253,38 +291,38 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     </div>
   </details>
 </article>
-<article class="card" id="spiel-2">
+<article class="card" id="spiel-2" data-idx="2">
   <details>
     <summary>
       <div class="when">Sa 10.10. 15:30</div>
       <div class="matchup">
         <span class="t home"><span class="nm">Augsburg</span> <img class="logo" src="https://i.imgur.com/sdE62e2.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
-        <span class="tipbox conf-hoch">1:2</span>
+        <span class="tipbox js-tip conf-hoch"><span class="js-tiptext">1:2</span></span>
         <span class="t away"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Logo_FC_Bayern_M%C3%BCnchen_%282002%E2%80%932017%29.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Bayern</span></span>
       </div>
-      
+      <div class="js-bar">
     <div class="bar" role="img" aria-label="Heimsieg 20 %, Unentschieden 18 %, Auswärtssieg 63 %">
       <span class="seg h" style="width:19.6%"></span><span class="seg d" style="width:17.8%"></span><span class="seg a" style="width:62.6%"></span>
     </div>
-    <div class="bar-legend"><span><i class="dot h"></i>Augsburg 20 %</span><span><i class="dot d"></i>Remis 18 %</span><span><i class="dot a"></i>Bayern 63 %</span></div>
-      <p class="alt">Praktisch genauso gut: 2:3, 1:3</p>
-      <div class="summary-foot"><span class="badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
+    <div class="bar-legend"><span><i class="dot h"></i>Augsburg 20 %</span><span><i class="dot d"></i>Remis 18 %</span><span><i class="dot a"></i>Bayern 63 %</span></div></div>
+      <p class="alt js-alt">Praktisch genauso gut: 2:3, 1:3</p>
+      <p class="mine js-mine" hidden>✍️ mit deinen Quoten berechnet</p>
+      <div class="summary-foot"><span class="badge js-badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
     </summary>
     <div class="details">
-      
+      <p class="note js-draw" hidden>⚖️ Remis-Tipp: Beide Teams liegen sehr eng beieinander.</p>
       <div class="grid2">
         <section>
           <h3>Erwartete Tore</h3>
-          <p class="big">1,55 : 2,75</p>
+          <p class="big js-xg">1,55 : 2,75</p>
           <h3>Wahrscheinlichste Ergebnisse</h3>
-          <div class="results"><span class="res">1:2 <small>8 %</small></span><span class="res">1:3 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span><span class="res">1:1 <small>6 %</small></span><span class="res">2:3 <small>6 %</small></span><span class="res">0:2 <small>5 %</small></span></div>
+          <div class="results js-likely"><span class="res">1:2 <small>8 %</small></span><span class="res">1:3 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span><span class="res">1:1 <small>6 %</small></span><span class="res">2:3 <small>6 %</small></span><span class="res">0:2 <small>5 %</small></span></div>
         </section>
         <section>
           <h3>Welcher Tipp bringt am meisten?</h3>
-          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>1:2</td><td>1,53</td></tr><tr><td>2:3</td><td>1,50</td></tr><tr><td>1:3</td><td>1,50</td></tr><tr><td>0:1</td><td>1,48</td></tr></tbody></table>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody class="js-ev"><tr class=best><td>1:2</td><td>1,53</td></tr><tr><td>2:3</td><td>1,50</td></tr><tr><td>1:3</td><td>1,50</td></tr><tr><td>0:1</td><td>1,48</td></tr></tbody></table>
         </section>
       </div>
-      
       <div class="grid2 teams">
         
         <div class="team-col">
@@ -314,38 +352,38 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     </div>
   </details>
 </article>
-<article class="card" id="spiel-3">
+<article class="card" id="spiel-3" data-idx="3">
   <details>
     <summary>
       <div class="when">Sa 10.10. 15:30</div>
       <div class="matchup">
         <span class="t home"><span class="nm">Mainz</span> <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/9/9e/Logo_Mainz_05.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
-        <span class="tipbox conf-niedrig">1:2</span>
+        <span class="tipbox js-tip conf-niedrig"><span class="js-tiptext">1:2</span></span>
         <span class="t away"><img class="logo" src="https://www.bundesliga-reisefuehrer.de/sites/default/files/B04_Standard_Logo_RGB.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Leverkusen</span></span>
       </div>
-      
+      <div class="js-bar">
     <div class="bar" role="img" aria-label="Heimsieg 39 %, Unentschieden 22 %, Auswärtssieg 39 %">
       <span class="seg h" style="width:38.6%"></span><span class="seg d" style="width:22.2%"></span><span class="seg a" style="width:39.3%"></span>
     </div>
-    <div class="bar-legend"><span><i class="dot h"></i>Mainz 39 %</span><span><i class="dot d"></i>Remis 22 %</span><span><i class="dot a"></i>Leverkusen 39 %</span></div>
-      <p class="alt">Praktisch genauso gut: 2:1, 2:3</p>
-      <div class="summary-foot"><span class="badge conf-niedrig">Offenes Spiel</span><span class="more">Details</span></div>
+    <div class="bar-legend"><span><i class="dot h"></i>Mainz 39 %</span><span><i class="dot d"></i>Remis 22 %</span><span><i class="dot a"></i>Leverkusen 39 %</span></div></div>
+      <p class="alt js-alt">Praktisch genauso gut: 2:1, 2:3</p>
+      <p class="mine js-mine" hidden>✍️ mit deinen Quoten berechnet</p>
+      <div class="summary-foot"><span class="badge js-badge conf-niedrig">Offenes Spiel</span><span class="more">Details</span></div>
     </summary>
     <div class="details">
-      
+      <p class="note js-draw" hidden>⚖️ Remis-Tipp: Beide Teams liegen sehr eng beieinander.</p>
       <div class="grid2">
         <section>
           <h3>Erwartete Tore</h3>
-          <p class="big">1,90 : 1,92</p>
+          <p class="big js-xg">1,90 : 1,92</p>
           <h3>Wahrscheinlichste Ergebnisse</h3>
-          <div class="results"><span class="res">1:1 <small>8 %</small></span><span class="res">1:2 <small>8 %</small></span><span class="res">2:1 <small>8 %</small></span><span class="res">2:2 <small>7 %</small></span><span class="res">1:3 <small>5 %</small></span><span class="res">3:1 <small>5 %</small></span></div>
+          <div class="results js-likely"><span class="res">1:1 <small>8 %</small></span><span class="res">1:2 <small>8 %</small></span><span class="res">2:1 <small>8 %</small></span><span class="res">2:2 <small>7 %</small></span><span class="res">1:3 <small>5 %</small></span><span class="res">3:1 <small>5 %</small></span></div>
         </section>
         <section>
           <h3>Welcher Tipp bringt am meisten?</h3>
-          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>1:2</td><td>1,04</td></tr><tr><td>2:1</td><td>1,02</td></tr><tr><td>2:3</td><td>1,01</td></tr><tr><td>0:1</td><td>1,00</td></tr></tbody></table>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody class="js-ev"><tr class=best><td>1:2</td><td>1,04</td></tr><tr><td>2:1</td><td>1,02</td></tr><tr><td>2:3</td><td>1,01</td></tr><tr><td>0:1</td><td>1,00</td></tr></tbody></table>
         </section>
       </div>
-      
       <div class="grid2 teams">
         
         <div class="team-col">
@@ -375,38 +413,38 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     </div>
   </details>
 </article>
-<article class="card" id="spiel-4">
+<article class="card" id="spiel-4" data-idx="4">
   <details>
     <summary>
       <div class="when">Sa 10.10. 15:30</div>
       <div class="matchup">
         <span class="t home"><span class="nm">Union Berlin</span> <img class="logo" src="https://assets.dfb.de/uploads/000/018/232/small_union-Berlin.jpg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
-        <span class="tipbox conf-mittel">2:1</span>
+        <span class="tipbox js-tip conf-mittel"><span class="js-tiptext">2:1</span></span>
         <span class="t away"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/SV_Elversberg_Logo.svg/500px-SV_Elversberg_Logo.svg.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Elversberg</span></span>
       </div>
-      
+      <div class="js-bar">
     <div class="bar" role="img" aria-label="Heimsieg 48 %, Unentschieden 23 %, Auswärtssieg 29 %">
       <span class="seg h" style="width:47.8%"></span><span class="seg d" style="width:23.0%"></span><span class="seg a" style="width:29.2%"></span>
     </div>
-    <div class="bar-legend"><span><i class="dot h"></i>Union Berlin 48 %</span><span><i class="dot d"></i>Remis 23 %</span><span><i class="dot a"></i>Elversberg 29 %</span></div>
-      
-      <div class="summary-foot"><span class="badge conf-mittel">Leichter Favorit</span><span class="more">Details</span></div>
+    <div class="bar-legend"><span><i class="dot h"></i>Union Berlin 48 %</span><span><i class="dot d"></i>Remis 23 %</span><span><i class="dot a"></i>Elversberg 29 %</span></div></div>
+      <p class="alt js-alt"></p>
+      <p class="mine js-mine" hidden>✍️ mit deinen Quoten berechnet</p>
+      <div class="summary-foot"><span class="badge js-badge conf-mittel">Leichter Favorit</span><span class="more">Details</span></div>
     </summary>
     <div class="details">
-      
+      <p class="note js-draw" hidden>⚖️ Remis-Tipp: Beide Teams liegen sehr eng beieinander.</p>
       <div class="grid2">
         <section>
           <h3>Erwartete Tore</h3>
-          <p class="big">1,95 : 1,49</p>
+          <p class="big js-xg">1,95 : 1,49</p>
           <h3>Wahrscheinlichste Ergebnisse</h3>
-          <div class="results"><span class="res">1:1 <small>10 %</small></span><span class="res">2:1 <small>9 %</small></span><span class="res">1:2 <small>7 %</small></span><span class="res">2:2 <small>7 %</small></span><span class="res">2:0 <small>6 %</small></span><span class="res">3:1 <small>6 %</small></span></div>
+          <div class="results js-likely"><span class="res">1:1 <small>10 %</small></span><span class="res">2:1 <small>9 %</small></span><span class="res">1:2 <small>7 %</small></span><span class="res">2:2 <small>7 %</small></span><span class="res">2:0 <small>6 %</small></span><span class="res">3:1 <small>6 %</small></span></div>
         </section>
         <section>
           <h3>Welcher Tipp bringt am meisten?</h3>
-          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>2:1</td><td>1,25</td></tr><tr><td>1:0</td><td>1,22</td></tr><tr><td>3:2</td><td>1,20</td></tr><tr><td>4:3</td><td>1,17</td></tr></tbody></table>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody class="js-ev"><tr class=best><td>2:1</td><td>1,25</td></tr><tr><td>1:0</td><td>1,22</td></tr><tr><td>3:2</td><td>1,20</td></tr><tr><td>4:3</td><td>1,17</td></tr></tbody></table>
         </section>
       </div>
-      
       <div class="grid2 teams">
         
         <div class="team-col">
@@ -436,38 +474,38 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     </div>
   </details>
 </article>
-<article class="card" id="spiel-5">
+<article class="card" id="spiel-5" data-idx="5">
   <details>
     <summary>
       <div class="when">Sa 10.10. 15:30</div>
       <div class="matchup">
         <span class="t home"><span class="nm">Paderborn</span> <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/e/e3/SC_Paderborn_07_Logo.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
-        <span class="tipbox conf-mittel">1:2</span>
+        <span class="tipbox js-tip conf-mittel"><span class="js-tiptext">1:2</span></span>
         <span class="t away"><img class="logo" src="https://i.imgur.com/v0tkpNx.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Stuttgart</span></span>
       </div>
-      
+      <div class="js-bar">
     <div class="bar" role="img" aria-label="Heimsieg 27 %, Unentschieden 24 %, Auswärtssieg 49 %">
       <span class="seg h" style="width:26.6%"></span><span class="seg d" style="width:24.1%"></span><span class="seg a" style="width:49.3%"></span>
     </div>
-    <div class="bar-legend"><span><i class="dot h"></i>Paderborn 27 %</span><span><i class="dot d"></i>Remis 24 %</span><span><i class="dot a"></i>Stuttgart 49 %</span></div>
-      <p class="alt">Praktisch genauso gut: 0:1</p>
-      <div class="summary-foot"><span class="badge conf-mittel">Leichter Favorit</span><span class="more">Details</span></div>
+    <div class="bar-legend"><span><i class="dot h"></i>Paderborn 27 %</span><span><i class="dot d"></i>Remis 24 %</span><span><i class="dot a"></i>Stuttgart 49 %</span></div></div>
+      <p class="alt js-alt">Praktisch genauso gut: 0:1</p>
+      <p class="mine js-mine" hidden>✍️ mit deinen Quoten berechnet</p>
+      <div class="summary-foot"><span class="badge js-badge conf-mittel">Leichter Favorit</span><span class="more">Details</span></div>
     </summary>
     <div class="details">
-      
+      <p class="note js-draw" hidden>⚖️ Remis-Tipp: Beide Teams liegen sehr eng beieinander.</p>
       <div class="grid2">
         <section>
           <h3>Erwartete Tore</h3>
-          <p class="big">1,30 : 1,83</p>
+          <p class="big js-xg">1,30 : 1,83</p>
           <h3>Wahrscheinlichste Ergebnisse</h3>
-          <div class="results"><span class="res">1:1 <small>11 %</small></span><span class="res">1:2 <small>10 %</small></span><span class="res">0:1 <small>7 %</small></span><span class="res">0:2 <small>7 %</small></span><span class="res">2:1 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span></div>
+          <div class="results js-likely"><span class="res">1:1 <small>11 %</small></span><span class="res">1:2 <small>10 %</small></span><span class="res">0:1 <small>7 %</small></span><span class="res">0:2 <small>7 %</small></span><span class="res">2:1 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span></div>
         </section>
         <section>
           <h3>Welcher Tipp bringt am meisten?</h3>
-          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>1:2</td><td>1,30</td></tr><tr><td>0:1</td><td>1,28</td></tr><tr><td>2:3</td><td>1,24</td></tr><tr><td>0:2</td><td>1,21</td></tr></tbody></table>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody class="js-ev"><tr class=best><td>1:2</td><td>1,30</td></tr><tr><td>0:1</td><td>1,28</td></tr><tr><td>2:3</td><td>1,24</td></tr><tr><td>0:2</td><td>1,21</td></tr></tbody></table>
         </section>
       </div>
-      
       <div class="grid2 teams">
         
         <div class="team-col">
@@ -497,38 +535,38 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     </div>
   </details>
 </article>
-<article class="card" id="spiel-6">
+<article class="card" id="spiel-6" data-idx="6">
   <details>
     <summary>
       <div class="when">Sa 10.10. 18:30</div>
       <div class="matchup">
         <span class="t home"><span class="nm">Leipzig</span> <img class="logo" src="https://i.imgur.com/Rpwsjz1.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
-        <span class="tipbox conf-hoch">2:1</span>
+        <span class="tipbox js-tip conf-hoch"><span class="js-tiptext">2:1</span></span>
         <span class="t away"><img class="logo" src="https://i.imgur.com/X8NFkOb.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Frankfurt</span></span>
       </div>
-      
+      <div class="js-bar">
     <div class="bar" role="img" aria-label="Heimsieg 63 %, Unentschieden 19 %, Auswärtssieg 18 %">
       <span class="seg h" style="width:63.2%"></span><span class="seg d" style="width:18.8%"></span><span class="seg a" style="width:18.0%"></span>
     </div>
-    <div class="bar-legend"><span><i class="dot h"></i>Leipzig 63 %</span><span><i class="dot d"></i>Remis 19 %</span><span><i class="dot a"></i>Frankfurt 18 %</span></div>
-      
-      <div class="summary-foot"><span class="badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
+    <div class="bar-legend"><span><i class="dot h"></i>Leipzig 63 %</span><span><i class="dot d"></i>Remis 19 %</span><span><i class="dot a"></i>Frankfurt 18 %</span></div></div>
+      <p class="alt js-alt"></p>
+      <p class="mine js-mine" hidden>✍️ mit deinen Quoten berechnet</p>
+      <div class="summary-foot"><span class="badge js-badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
     </summary>
     <div class="details">
-      
+      <p class="note js-draw" hidden>⚖️ Remis-Tipp: Beide Teams liegen sehr eng beieinander.</p>
       <div class="grid2">
         <section>
           <h3>Erwartete Tore</h3>
-          <p class="big">2,52 : 1,31</p>
+          <p class="big js-xg">2,52 : 1,31</p>
           <h3>Wahrscheinlichste Ergebnisse</h3>
-          <div class="results"><span class="res">2:1 <small>9 %</small></span><span class="res">1:1 <small>8 %</small></span><span class="res">3:1 <small>8 %</small></span><span class="res">2:0 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span><span class="res">3:0 <small>6 %</small></span></div>
+          <div class="results js-likely"><span class="res">2:1 <small>9 %</small></span><span class="res">1:1 <small>8 %</small></span><span class="res">3:1 <small>8 %</small></span><span class="res">2:0 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span><span class="res">3:0 <small>6 %</small></span></div>
         </section>
         <section>
           <h3>Welcher Tipp bringt am meisten?</h3>
-          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>2:1</td><td>1,56</td></tr><tr><td>3:1</td><td>1,52</td></tr><tr><td>1:0</td><td>1,52</td></tr><tr><td>3:2</td><td>1,52</td></tr></tbody></table>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody class="js-ev"><tr class=best><td>2:1</td><td>1,56</td></tr><tr><td>3:1</td><td>1,52</td></tr><tr><td>1:0</td><td>1,52</td></tr><tr><td>3:2</td><td>1,52</td></tr></tbody></table>
         </section>
       </div>
-      
       <div class="grid2 teams">
         
         <div class="team-col">
@@ -558,38 +596,38 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     </div>
   </details>
 </article>
-<article class="card" id="spiel-7">
+<article class="card" id="spiel-7" data-idx="7">
   <details>
     <summary>
       <div class="when">So 11.10. 15:30</div>
       <div class="matchup">
         <span class="t home"><span class="nm">Köln</span> <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/0/01/1._FC_Koeln_Logo_2014%E2%80%93.svg" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
-        <span class="tipbox conf-mittel">2:1</span>
+        <span class="tipbox js-tip conf-mittel"><span class="js-tiptext">2:1</span></span>
         <span class="t away"><img class="logo" src="https://i.imgur.com/KSIk0Eu.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">Gladbach</span></span>
       </div>
-      
+      <div class="js-bar">
     <div class="bar" role="img" aria-label="Heimsieg 55 %, Unentschieden 22 %, Auswärtssieg 24 %">
       <span class="seg h" style="width:54.7%"></span><span class="seg d" style="width:21.5%"></span><span class="seg a" style="width:23.8%"></span>
     </div>
-    <div class="bar-legend"><span><i class="dot h"></i>Köln 55 %</span><span><i class="dot d"></i>Remis 22 %</span><span><i class="dot a"></i>Gladbach 24 %</span></div>
-      
-      <div class="summary-foot"><span class="badge conf-mittel">Leichter Favorit</span><span class="more">Details</span></div>
+    <div class="bar-legend"><span><i class="dot h"></i>Köln 55 %</span><span><i class="dot d"></i>Remis 22 %</span><span><i class="dot a"></i>Gladbach 24 %</span></div></div>
+      <p class="alt js-alt"></p>
+      <p class="mine js-mine" hidden>✍️ mit deinen Quoten berechnet</p>
+      <div class="summary-foot"><span class="badge js-badge conf-mittel">Leichter Favorit</span><span class="more">Details</span></div>
     </summary>
     <div class="details">
-      
+      <p class="note js-draw" hidden>⚖️ Remis-Tipp: Beide Teams liegen sehr eng beieinander.</p>
       <div class="grid2">
         <section>
           <h3>Erwartete Tore</h3>
-          <p class="big">2,17 : 1,40</p>
+          <p class="big js-xg">2,17 : 1,40</p>
           <h3>Wahrscheinlichste Ergebnisse</h3>
-          <div class="results"><span class="res">2:1 <small>9 %</small></span><span class="res">1:1 <small>9 %</small></span><span class="res">3:1 <small>7 %</small></span><span class="res">2:0 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span><span class="res">1:2 <small>6 %</small></span></div>
+          <div class="results js-likely"><span class="res">2:1 <small>9 %</small></span><span class="res">1:1 <small>9 %</small></span><span class="res">3:1 <small>7 %</small></span><span class="res">2:0 <small>7 %</small></span><span class="res">2:2 <small>6 %</small></span><span class="res">1:2 <small>6 %</small></span></div>
         </section>
         <section>
           <h3>Welcher Tipp bringt am meisten?</h3>
-          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>2:1</td><td>1,40</td></tr><tr><td>1:0</td><td>1,36</td></tr><tr><td>3:2</td><td>1,35</td></tr><tr><td>3:1</td><td>1,33</td></tr></tbody></table>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody class="js-ev"><tr class=best><td>2:1</td><td>1,40</td></tr><tr><td>1:0</td><td>1,36</td></tr><tr><td>3:2</td><td>1,35</td></tr><tr><td>3:1</td><td>1,33</td></tr></tbody></table>
         </section>
       </div>
-      
       <div class="grid2 teams">
         
         <div class="team-col">
@@ -619,38 +657,38 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     </div>
   </details>
 </article>
-<article class="card" id="spiel-8">
+<article class="card" id="spiel-8" data-idx="8">
   <details>
     <summary>
       <div class="when">So 11.10. 17:30</div>
       <div class="matchup">
         <span class="t home"><span class="nm">Freiburg</span> <img class="logo" src="https://i.imgur.com/r3mvi0h.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>
-        <span class="tipbox conf-hoch">2:1</span>
+        <span class="tipbox js-tip conf-hoch"><span class="js-tiptext">2:1</span></span>
         <span class="t away"><img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/9/97/FC_Schalke_04_Logo.png" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"> <span class="nm">S04</span></span>
       </div>
-      
+      <div class="js-bar">
     <div class="bar" role="img" aria-label="Heimsieg 65 %, Unentschieden 20 %, Auswärtssieg 16 %">
       <span class="seg h" style="width:64.6%"></span><span class="seg d" style="width:19.8%"></span><span class="seg a" style="width:15.7%"></span>
     </div>
-    <div class="bar-legend"><span><i class="dot h"></i>Freiburg 65 %</span><span><i class="dot d"></i>Remis 20 %</span><span><i class="dot a"></i>S04 16 %</span></div>
-      <p class="alt">Praktisch genauso gut: 1:0</p>
-      <div class="summary-foot"><span class="badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
+    <div class="bar-legend"><span><i class="dot h"></i>Freiburg 65 %</span><span><i class="dot d"></i>Remis 20 %</span><span><i class="dot a"></i>S04 16 %</span></div></div>
+      <p class="alt js-alt">Praktisch genauso gut: 1:0</p>
+      <p class="mine js-mine" hidden>✍️ mit deinen Quoten berechnet</p>
+      <div class="summary-foot"><span class="badge js-badge conf-hoch">Klare Sache</span><span class="more">Details</span></div>
     </summary>
     <div class="details">
-      
+      <p class="note js-draw" hidden>⚖️ Remis-Tipp: Beide Teams liegen sehr eng beieinander.</p>
       <div class="grid2">
         <section>
           <h3>Erwartete Tore</h3>
-          <p class="big">2,30 : 1,06</p>
+          <p class="big js-xg">2,30 : 1,06</p>
           <h3>Wahrscheinlichste Ergebnisse</h3>
-          <div class="results"><span class="res">2:1 <small>10 %</small></span><span class="res">2:0 <small>9 %</small></span><span class="res">1:1 <small>9 %</small></span><span class="res">1:0 <small>7 %</small></span><span class="res">3:1 <small>7 %</small></span><span class="res">3:0 <small>7 %</small></span></div>
+          <div class="results js-likely"><span class="res">2:1 <small>10 %</small></span><span class="res">2:0 <small>9 %</small></span><span class="res">1:1 <small>9 %</small></span><span class="res">1:0 <small>7 %</small></span><span class="res">3:1 <small>7 %</small></span><span class="res">3:0 <small>7 %</small></span></div>
         </section>
         <section>
           <h3>Welcher Tipp bringt am meisten?</h3>
-          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody><tr class=best><td>2:1</td><td>1,61</td></tr><tr><td>1:0</td><td>1,59</td></tr><tr><td>2:0</td><td>1,58</td></tr><tr><td>3:1</td><td>1,56</td></tr></tbody></table>
+          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody class="js-ev"><tr class=best><td>2:1</td><td>1,61</td></tr><tr><td>1:0</td><td>1,59</td></tr><tr><td>2:0</td><td>1,58</td></tr><tr><td>3:1</td><td>1,56</td></tr></tbody></table>
         </section>
       </div>
-      
       <div class="grid2 teams">
         
         <div class="team-col">
@@ -690,7 +728,7 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     <h2>So entstehen die Tipps</h2>
     <ol>
       <li><b>Teamstärke:</b> Aus allen Spielen dieser und der letzten Saison wird für jedes Team eine Angriffs- und Abwehrstärke berechnet. Neuere Spiele zählen mehr. Statt nur der Tore zählt vor allem <b>xG</b> (Expected Goals), also die Qualität der Torchancen. Das sagt die Zukunft besser voraus als das Ergebnis allein.</li>
-      <li><b>Wettquoten:</b> Wenn verfügbar, fließen die Quoten mehrerer Wettanbieter mit ein (65 %). Sie enthalten Infos zu Verletzungen und Aufstellungen.</li>
+      <li><b>Wettquoten (optional):</b> Wenn du unter „Quoten eintragen“ Quoten einträgst, fließen sie zu 65 % in die Torerwartung ein. Quoten enthalten Infos, die das Modell nicht kennt, z.&nbsp;B. Verletzungen und Aufstellungen.</li>
       <li><b>Ergebnis-Wahrscheinlichkeiten:</b> Aus den erwarteten Toren wird für jedes Ergebnis (0:0, 1:0, 2:1 …) eine Wahrscheinlichkeit berechnet.</li>
       <li><b>Bester Tipp:</b> Für jeden möglichen Tipp werden die durchschnittlich zu erwartenden Kicktipp-Punkte (4/3/2) berechnet. Empfohlen wird der Tipp mit dem höchsten Wert. Das ist nicht immer das wahrscheinlichste Ergebnis.</li>
     </ol>
@@ -698,5 +736,130 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     <p class="muted small-text">Daten: OpenLigaDB, Understat.</p>
   </section>
 </main>
+<script>const GAMES=[{"id": 83192, "lam": [2.2648, 0.8198], "locked": false, "tip": [1, 0], "home": "Dortmund", "away": "Bremen"}, {"id": 83194, "lam": [2.4268, 1.1093], "locked": false, "tip": [2, 1], "home": "Hoffenheim", "away": "HSV"}, {"id": 83196, "lam": [1.5503, 2.7546], "locked": false, "tip": [1, 2], "home": "Augsburg", "away": "Bayern"}, {"id": 83197, "lam": [1.9042, 1.9226], "locked": false, "tip": [1, 2], "home": "Mainz", "away": "Leverkusen"}, {"id": 83198, "lam": [1.9475, 1.4944], "locked": false, "tip": [2, 1], "home": "Union Berlin", "away": "Elversberg"}, {"id": 83200, "lam": [1.2955, 1.8276], "locked": false, "tip": [1, 2], "home": "Paderborn", "away": "Stuttgart"}, {"id": 83193, "lam": [2.5176, 1.3149], "locked": false, "tip": [2, 1], "home": "Leipzig", "away": "Frankfurt"}, {"id": 83199, "lam": [2.1744, 1.3962], "locked": false, "tip": [2, 1], "home": "Köln", "away": "Gladbach"}, {"id": 83195, "lam": [2.2974, 1.0619], "locked": false, "tip": [2, 1], "home": "Freiburg", "away": "S04"}];const CFG={"rho": -0.06, "maxGoals": 10, "w": 0.65, "pts": [4, 3, 2], "season": 2026};
+
+(function(){
+const fmt=(x,d)=>x.toFixed(d).replace('.',',');
+const pct=p=>Math.round(p*100)+' %';
+const tipStr=t=>t[0]+':'+t[1];
+const sign=x=>x>0?1:x<0?-1:0;
+
+function scoreMatrix(lh,la){
+  const n=CFG.maxGoals+1, ph=[], pa=[];
+  let a=Math.exp(-lh), b=Math.exp(-la);
+  for(let k=0;k<n;k++){ ph.push(a); pa.push(b); a*=lh/(k+1); b*=la/(k+1); }
+  const m=[]; let tot=0;
+  for(let i=0;i<n;i++){ m.push([]); for(let j=0;j<n;j++) m[i].push(ph[i]*pa[j]); }
+  const r=CFG.rho;
+  m[0][0]*=1-lh*la*r; m[0][1]*=1+lh*r; m[1][0]*=1+la*r; m[1][1]*=1-r;
+  for(const row of m) for(const v of row) tot+=v;
+  return m.map(row=>row.map(v=>v/tot));
+}
+function outcome(m){
+  let h=0,d=0; const n=m.length;
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++){ if(i>j) h+=m[i][j]; else if(i===j) d+=m[i][j]; }
+  return [h,d,1-h-d];
+}
+function points(t,r){
+  if(t[0]===r[0]&&t[1]===r[1]) return CFG.pts[0];
+  if(sign(t[0]-t[1])!==sign(r[0]-r[1])) return 0;
+  return (t[0]-t[1]===r[0]-r[1]) ? CFG.pts[1] : CFG.pts[2];
+}
+function expectedPoints(m){
+  const out=[], n=m.length;
+  for(let th=0;th<=5;th++) for(let ta=0;ta<=5;ta++){
+    let ev=0;
+    for(let i=0;i<n;i++) for(let j=0;j<n;j++) ev+=m[i][j]*points([th,ta],[i,j]);
+    out.push([[th,ta],ev]);
+  }
+  return out.sort((x,y)=>y[1]-x[1]);
+}
+function lambdasFromMarket(pH,pA){
+  const err=(lh,la)=>{ const o=outcome(scoreMatrix(lh,la)); return (o[0]-pH)**2+(o[2]-pA)**2; };
+  let best=null, be=Infinity;
+  for(let x=2;x<45;x++) for(let y=2;y<45;y++){ const e=err(x/10,y/10); if(e<be){be=e;best=[x/10,y/10];} }
+  const [h0,a0]=best;
+  for(let dx=-10;dx<=10;dx++) for(let dy=-10;dy<=10;dy++){
+    const lh=h0+dx/100, la=a0+dy/100; if(lh<=0.05||la<=0.05) continue;
+    const e=err(lh,la); if(e<be){be=e;best=[lh,la];}
+  }
+  return best;
+}
+function blend(mod,mkt){ return mod.map((v,i)=>Math.exp((1-CFG.w)*Math.log(v)+CFG.w*Math.log(mkt[i]))); }
+function confidence(p,t){
+  const q=t[0]>t[1]?p[0]:t[0]===t[1]?p[1]:p[2];
+  return q>=0.62?['hoch','Klare Sache']:q>=0.45?['mittel','Leichter Favorit']:['niedrig','Offenes Spiel'];
+}
+function setConf(el,level){ el.classList.remove('conf-hoch','conf-mittel','conf-niedrig'); el.classList.add('conf-'+level); }
+
+function render(idx, lam, mine){
+  const g=GAMES[idx], card=document.querySelector('.card[data-idx="'+idx+'"]'), ov=document.querySelector('.ov-row[data-idx="'+idx+'"]');
+  const m=scoreMatrix(lam[0],lam[1]), p=outcome(m), evs=expectedPoints(m).slice(0,4);
+  const tip=g.locked?g.tip:evs[0][0];
+  const [level,label]=confidence(p,tip);
+  card.querySelector('.js-tiptext').textContent=tipStr(tip);
+  setConf(card.querySelector('.js-tip'),level);
+  const badge=card.querySelector('.js-badge'); setConf(badge,level); badge.textContent=label;
+  card.querySelector('.js-bar').innerHTML=
+    '<div class="bar" role="img" aria-label="Heimsieg '+pct(p[0])+', Unentschieden '+pct(p[1])+', Auswärtssieg '+pct(p[2])+'">'+
+    '<span class="seg h" style="width:'+(p[0]*100).toFixed(1)+'%"></span><span class="seg d" style="width:'+(p[1]*100).toFixed(1)+'%"></span><span class="seg a" style="width:'+(p[2]*100).toFixed(1)+'%"></span></div>'+
+    '<div class="bar-legend"><span><i class="dot h"></i>'+esc(g.home)+' '+pct(p[0])+'</span><span><i class="dot d"></i>Remis '+pct(p[1])+'</span><span><i class="dot a"></i>'+esc(g.away)+' '+pct(p[2])+'</span></div>';
+  const alts=g.locked?[]:evs.slice(1).filter(e=>evs[0][1]-e[1]<0.03).map(e=>tipStr(e[0]));
+  card.querySelector('.js-alt').textContent=alts.length?'Praktisch genauso gut: '+alts.join(', '):'';
+  card.querySelector('.js-mine').hidden=!mine;
+  card.querySelector('.js-draw').hidden=tip[0]!==tip[1];
+  card.querySelector('.js-xg').textContent=fmt(lam[0],2)+' : '+fmt(lam[1],2);
+  const likely=[]; for(let i=0;i<6;i++) for(let j=0;j<6;j++) likely.push([i,j,m[i][j]]);
+  likely.sort((x,y)=>y[2]-x[2]);
+  card.querySelector('.js-likely').innerHTML=likely.slice(0,6).map(l=>'<span class="res">'+l[0]+':'+l[1]+' <small>'+pct(l[2])+'</small></span>').join('');
+  card.querySelector('.js-ev').innerHTML=evs.map((e,i)=>'<tr'+(i===0?' class=best':'')+'><td>'+tipStr(e[0])+'</td><td>'+fmt(e[1],2)+'</td></tr>').join('');
+  const ot=ov.querySelector('.js-ov-tip'); ot.textContent=tipStr(tip); setConf(ot,level);
+  ov.classList.toggle('has-mine',!!mine);
+  return tip;
+}
+function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+const KEY=id=>'kicktipp-quoten-'+CFG.season+'-'+id;
+const store={
+  get(id){ try{ return JSON.parse(localStorage.getItem(KEY(id))||'null'); }catch(e){ return null; } },
+  set(id,v){ try{ v?localStorage.setItem(KEY(id),JSON.stringify(v)):localStorage.removeItem(KEY(id)); }catch(e){} }
+};
+function parseOdd(s){
+  s=(s||'').trim().replace(',','.');
+  if(!s) return null;
+  const v=Number(s);
+  return (isFinite(v)&&v>1.0&&v<100)?v:NaN;
+}
+const modelState=GAMES.map(()=>true);
+function update(row, save){
+  const idx=+row.dataset.idx, g=GAMES[idx];
+  if(g.locked) return;
+  const inputs=[...row.querySelectorAll('.odd')], vals=inputs.map(i=>parseOdd(i.value)), state=row.querySelector('.odds-state');
+  inputs.forEach((inp,k)=>inp.classList.toggle('bad',Number.isNaN(vals[k])));
+  const complete=vals.every(v=>typeof v==='number'&&!Number.isNaN(v));
+  if(save) store.set(g.id, inputs.some(i=>i.value.trim())?inputs.map(i=>i.value.trim()):null);
+  if(complete){
+    const inv=vals.map(v=>1/v), s=inv[0]+inv[1]+inv[2];
+    const lam=blend(g.lam, lambdasFromMarket(inv[0]/s, inv[2]/s));
+    const tip=render(idx, lam, true);
+    state.textContent='✓ Tipp '+tipStr(tip); state.className='odds-state ok';
+    modelState[idx]=false;
+  }else{
+    if(!modelState[idx]){ render(idx, g.lam, false); modelState[idx]=true; }
+    state.textContent=vals.some(v=>Number.isNaN(v))?'Quote prüfen':''; state.className='odds-state';
+  }
+}
+document.querySelectorAll('.odds-row').forEach(row=>{
+  const g=GAMES[+row.dataset.idx], saved=store.get(g.id), inputs=row.querySelectorAll('.odd');
+  if(saved&&!g.locked){ inputs.forEach((inp,k)=>inp.value=saved[k]||''); update(row,false); }
+  inputs.forEach(inp=>inp.addEventListener('input',()=>update(row,true)));
+});
+document.querySelector('.js-clear').addEventListener('click',()=>{
+  if(!confirm('Alle eingetragenen Quoten löschen?')) return;
+  document.querySelectorAll('.odds-row').forEach(row=>{ row.querySelectorAll('.odd:not(:disabled)').forEach(i=>i.value=''); update(row,true); });
+});
+document.querySelector('.js-open-odds').addEventListener('click',()=>{ document.getElementById('quoten').open=true; });
+})();
+</script>
 </body>
 </html>

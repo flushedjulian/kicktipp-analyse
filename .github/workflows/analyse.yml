@@ -23,8 +23,6 @@ jobs:
           python-version: "3.12"
 
       - name: Analyse erstellen
-        env:
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: python -m analyse.main
 
       - name: Ergebnis speichern
