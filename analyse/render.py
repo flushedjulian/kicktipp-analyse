@@ -1,4 +1,4 @@
-"""Erzeugt die HTML-Seite."""
+"""Erzeugt die HTML-Seite (Gestaltung angelehnt an TippBase)."""
 
 import json
 from html import escape
@@ -8,10 +8,23 @@ from . import model
 
 BERLIN = ZoneInfo("Europe/Berlin")
 WOCHENTAG = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+MONAT = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
 
 
 def _when(dt):
-    return f"{WOCHENTAG[dt.weekday()]} {dt:%d.%m. %H:%M}"
+    return f"{WOCHENTAG[dt.weekday()]} {dt:%d.%m.} · {dt:%H:%M}"
+
+
+def _when_short(dt):
+    return f"{WOCHENTAG[dt.weekday()]} {dt:%H:%M}"
+
+
+def _date_range(first, last):
+    if first.date() == last.date():
+        return f"{first.day}. {MONAT[first.month - 1]}"
+    if first.month == last.month:
+        return f"{first.day}.–{last.day}. {MONAT[first.month - 1]}"
+    return f"{first.day}. {MONAT[first.month - 1][:3]}. – {last.day}. {MONAT[last.month - 1][:3]}."
 
 
 def _pct(p):
@@ -22,31 +35,28 @@ def _tip(t):
     return f"{t[0]}:{t[1]}"
 
 
-def _logo(team, size=28):
-    return f'<img class="logo" src="{escape(team.icon)}" alt="" width="{size}" height="{size}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">'
+def _score(t):
+    return f'{t[0]}<span class="sep">:</span>{t[1]}'
+
+
+def _logo(team, size):
+    return (f'<img class="crest" src="{escape(team.icon)}" alt="" width="{size}" height="{size}" '
+            f'loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility=\'hidden\'">')
+
+
+CONFIDENCE = {"hoch": "Klarer Favorit", "mittel": "Leichter Favorit", "niedrig": "Offenes Spiel"}
 
 
 def _confidence(g):
     ph, pd, pa = g["probs"]
     th, ta = g["tip"]
     p = ph if th > ta else pd if th == ta else pa
-    if p >= 0.62:
-        return "hoch", "Klare Sache"
-    if p >= 0.45:
-        return "mittel", "Leichter Favorit"
-    return "niedrig", "Offenes Spiel"
+    level = "hoch" if p >= 0.62 else "mittel" if p >= 0.45 else "niedrig"
+    return level, CONFIDENCE[level]
 
 
-def _form_chips(form, teams):
-    if not form:
-        return '<span class="muted">keine Daten</span>'
-    out = []
-    for f in reversed(form):  # ältestes links
-        opp = teams[f["gegner"]].short
-        where = "H" if f["heim"] else "A"
-        title = f'{f["datum"]:%d.%m.%y} {where} vs {opp}: {f["tore"]}:{f["gegen"]}'
-        out.append(f'<span class="chip {f["res"]}" title="{escape(title)}">{f["res"]}</span>')
-    return "".join(out)
+def _fmt(x, d=1):
+    return "–" if x is None else f"{x:.{d}f}".replace(".", ",")
 
 
 def _avg(form, key):
@@ -54,23 +64,36 @@ def _avg(form, key):
     return sum(vals) / len(vals) if vals else None
 
 
-def _fmt(x, d=1):
-    return "–" if x is None else f"{x:.{d}f}".replace(".", ",")
+def _form_chips(form, teams):
+    if not form:
+        return '<span class="dim">–</span>'
+    out = []
+    for f in reversed(form):  # ältestes links
+        where = "H" if f["heim"] else "A"
+        title = f'{f["datum"]:%d.%m.%y} {where} {teams[f["gegner"]].short} {f["tore"]}:{f["gegen"]}'
+        out.append(f'<span class="chip {f["res"]}" title="{escape(title)}">{f["res"]}</span>')
+    return "".join(out)
 
 
-def _prob_bar(probs, home, away):
+def _bar(probs):
     ph, pd, pa = probs
-    return f"""<div class="js-bar">
-    <div class="bar" role="img" aria-label="Heimsieg {_pct(ph)}, Unentschieden {_pct(pd)}, Auswärtssieg {_pct(pa)}">
-      <span class="seg h" style="width:{ph * 100:.1f}%"></span><span class="seg d" style="width:{pd * 100:.1f}%"></span><span class="seg a" style="width:{pa * 100:.1f}%"></span>
-    </div>
-    <div class="bar-legend"><span><i class="dot h"></i>{escape(home.short)} {_pct(ph)}</span><span><i class="dot d"></i>Remis {_pct(pd)}</span><span><i class="dot a"></i>{escape(away.short)} {_pct(pa)}</span></div></div>"""
+    return f"""<div class="bar" role="img" aria-label="Heimsieg {_pct(ph)}, Unentschieden {_pct(pd)}, Auswärtssieg {_pct(pa)}">
+        <span class="seg h" style="width:{ph * 100:.1f}%"></span><span class="seg d" style="width:{pd * 100:.1f}%"></span><span class="seg a" style="width:{pa * 100:.1f}%"></span>
+      </div>
+      <div class="bar-legend"><span>{_pct(ph)}</span><span>Remis {_pct(pd)}</span><span>{_pct(pa)}</span></div>"""
+
+
+def _alt_text(g):
+    if g["locked"]:
+        return ""
+    best = g["evs"][0][1]
+    alts = [_tip(t) for t, ev in g["evs"][1:] if best - ev < 0.03]
+    return "Alternativ " + ", ".join(alts) if alts else ""
 
 
 def _card(g, teams, idx):
     m, home, away = g["match"], g["home"], g["away"]
     level, label = _confidence(g)
-    th, ta = g["tip"]
     lh, la = g["lambdas"]
 
     evs = "".join(
@@ -79,67 +102,69 @@ def _card(g, teams, idx):
     likely = "".join(f'<span class="res">{i}:{j} <small>{_pct(p)}</small></span>' for i, j, p in g["likely"])
 
     def team_block(team, tab, form, venue, venue_label, scorers):
-        pos = f'{tab["platz"]}. Platz · {tab["pkt"]} Pkt · {tab["tore"]}:{tab["gegen"]} Tore' if tab else "noch keine Spiele"
+        pos = f'{tab["platz"]}. Platz · {tab["pkt"]} Punkte · {tab["tore"]}:{tab["gegen"]} Tore' if tab else "Noch keine Spiele"
         xg, xga = _avg(form, "xg"), _avg(form, "xga")
         sc = ", ".join(f"{escape(n)} ({c})" for n, c in scorers) or "–"
         return f"""
-        <div class="team-col">
-          <h4>{_logo(team, 20)} {escape(team.short)}</h4>
-          <p class="muted">{pos}</p>
+        <div class="team-block">
+          <div class="team-head">{_logo(team, 22)}<div><b>{escape(team.short)}</b><span>{pos}</span></div></div>
           <dl>
             <dt>Letzte 5</dt><dd>{_form_chips(form, teams)}</dd>
             <dt>{venue_label}</dt><dd>{_form_chips(venue, teams)}</dd>
-            <dt>xG letzte 5</dt><dd>{_fmt(xg)} erzeugt · {_fmt(xga)} zugelassen</dd>
-            <dt>Torjäger</dt><dd>{sc}</dd>
+            <dt>xG letzte 5</dt><dd>{_fmt(xg)} für · {_fmt(xga)} gegen</dd>
+            <dt>Torschützen</dt><dd>{sc}</dd>
           </dl>
         </div>"""
 
     h2h = "".join(
-        f'<li><span class="muted">{h.kickoff_local:%d.%m.%y}</span> {escape(teams[h.home_id].short)} – {escape(teams[h.away_id].short)} <b>{h.home_goals}:{h.away_goals}</b></li>'
+        f'<li><span>{escape(teams[h.home_id].short)} – {escape(teams[h.away_id].short)}</span><b>{h.home_goals}:{h.away_goals}</b><span class="dim">{h.kickoff_local:%d.%m.%y}</span></li>'
         for h in g["h2h"]
-    ) or '<li class="muted">Keine Duelle in den letzten zwei Spielzeiten.</li>'
+    ) or '<li class="dim">Keine Spiele in den letzten zwei Saisons</li>'
 
-    lock = '<span class="lock" title="Spiel läuft oder ist vorbei – Tipp eingefroren">🔒</span>' if g["locked"] else ""
-    draw_hint = '<p class="note js-draw"' + ("" if th == ta else " hidden") + '>⚖️ Remis-Tipp: Beide Teams liegen sehr eng beieinander.</p>'
-    best_ev = g["evs"][0][1]
-    alts = [_tip(t) for t, ev in g["evs"][1:] if best_ev - ev < 0.03]
-    alt_hint = f'<p class="alt js-alt">{"Praktisch genauso gut: " + ", ".join(alts) if alts and not g["locked"] else ""}</p>'
+    lock = '<span class="lock" title="Angepfiffen, Tipp steht fest">🔒</span>' if g["locked"] else ""
 
     return f"""
-<article class="card" id="spiel-{idx}" data-idx="{idx}">
+<article class="card match-card" id="spiel-{idx}" data-idx="{idx}">
   <details>
     <summary>
-      <div class="when">{_when(m.kickoff_local)}</div>
-      <div class="matchup">
-        <span class="t home"><span class="nm">{escape(home.short)}</span> {_logo(home)}</span>
-        <span class="tipbox js-tip conf-{level}"><span class="js-tiptext">{_tip(g["tip"])}</span>{lock}</span>
-        <span class="t away">{_logo(away)} <span class="nm">{escape(away.short)}</span></span>
+      <div class="ctime">{_when(m.kickoff_local)}</div>
+      <div class="match">
+        <div class="side">{_logo(home, 40)}<span class="tname">{escape(home.short)}</span></div>
+        <div class="center">
+          <span class="cap">Tipp{lock}</span>
+          <span class="score js-tip"><span class="js-tiptext">{_score(g["tip"])}</span></span>
+          <span class="mine js-mine" hidden>mit Quoten</span>
+        </div>
+        <div class="side">{_logo(away, 40)}<span class="tname">{escape(away.short)}</span></div>
       </div>
-      {_prob_bar(g["probs"], home, away)}
-      {alt_hint}
-      <p class="mine js-mine" hidden>✍️ mit deinen Quoten berechnet</p>
-      <div class="summary-foot"><span class="badge js-badge conf-{level}">{label}</span><span class="more">Details</span></div>
+      <div class="js-bar">{_bar(g["probs"])}</div>
+      <div class="card-foot">
+        <span class="badge js-badge conf-{level}">{label}</span>
+        <span class="alt js-alt">{_alt_text(g)}</span>
+        <span class="more">Details</span>
+      </div>
     </summary>
     <div class="details">
-      {draw_hint}
-      <div class="grid2">
-        <section>
-          <h3>Erwartete Tore</h3>
-          <p class="big js-xg">{_fmt(lh, 2)} : {_fmt(la, 2)}</p>
-          <h3>Wahrscheinlichste Ergebnisse</h3>
-          <div class="results js-likely">{likely}</div>
-        </section>
-        <section>
-          <h3>Welcher Tipp bringt am meisten?</h3>
-          <table class="ev"><thead><tr><th>Tipp</th><th>Ø Punkte</th></tr></thead><tbody class="js-ev">{evs}</tbody></table>
-        </section>
-      </div>
-      <div class="grid2 teams">
-        {team_block(home, g["tab_home"], g["form_home"], g["venue_home"], "Heimspiele", g["scorers_home"])}
-        {team_block(away, g["tab_away"], g["form_away"], g["venue_away"], "Auswärtsspiele", g["scorers_away"])}
-      </div>
-      <h3>Direkter Vergleich</h3>
-      <ul class="h2h">{h2h}</ul>
+      <section>
+        <h3>Erwartete Tore</h3>
+        <p class="xg js-xg">{_fmt(lh, 2)} : {_fmt(la, 2)}</p>
+      </section>
+      <section>
+        <h3>Wahrscheinlichste Ergebnisse</h3>
+        <div class="results js-likely">{likely}</div>
+      </section>
+      <section>
+        <h3>Erwartete Punkte je Tipp</h3>
+        <table class="ev"><tbody class="js-ev">{evs}</tbody></table>
+      </section>
+      <section class="teams">
+        {team_block(home, g["tab_home"], g["form_home"], g["venue_home"], "Heim", g["scorers_home"])}
+        {team_block(away, g["tab_away"], g["form_away"], g["venue_away"], "Auswärts", g["scorers_away"])}
+      </section>
+      <section>
+        <h3>Direkter Vergleich</h3>
+        <ul class="h2h">{h2h}</ul>
+      </section>
     </div>
   </details>
 </article>"""
@@ -150,9 +175,9 @@ def _overview(games):
     for i, g in enumerate(games):
         level, _ = _confidence(g)
         rows.append(
-            f'<a class="ov-row" href="#spiel-{i}" data-idx="{i}"><span class="muted ov-when">{_when(g["match"].kickoff_local)}</span>'
-            f'<span class="ov-h">{escape(g["home"].short)}</span><span class="tipbox small js-ov-tip conf-{level}">{_tip(g["tip"])}</span>'
-            f'<span class="ov-a">{escape(g["away"].short)}</span></a>'
+            f'<a class="ov-row" href="#spiel-{i}" data-idx="{i}">'
+            f'<span class="ov-teams"><b>{escape(g["home"].short)} – {escape(g["away"].short)}</b><span>{_when_short(g["match"].kickoff_local)}</span></span>'
+            f'<span class="pill js-ov-tip conf-{level}">{_tip(g["tip"])}</span></a>'
         )
     return "".join(rows)
 
@@ -170,41 +195,45 @@ def _odds_panel(games):
         state = "angepfiffen" if g["locked"] else ""
         rows.append(f'<div class="odds-row" data-idx="{i}"><span class="odds-match">{h} – {a}</span>{fields}<span class="odds-state">{state}</span></div>')
     return f"""
-  <details class="panel odds" id="quoten">
-    <summary><h2>Quoten eintragen <span class="muted opt">optional</span></h2><span class="more">öffnen</span></summary>
-    <p class="muted small-text">Quoten für Heimsieg (1), Unentschieden (X) und Auswärtssieg (2) eintragen, z.&nbsp;B. aus Kicktipp oder von einer Wettseite. Sobald alle drei Felder eines Spiels ausgefüllt sind, werden Tipp und Wahrscheinlichkeiten neu berechnet. Die Quoten bleiben auf diesem Gerät gespeichert.</p>
+  <details class="card odds" id="quoten">
+    <summary><span class="odds-title">Quoten eintragen</span><span class="more">optional</span></summary>
+    <p class="odds-help">1&nbsp;=&nbsp;Heimsieg, X&nbsp;=&nbsp;Unentschieden, 2&nbsp;=&nbsp;Auswärtssieg. Tipp und Prozente passen sich an, sobald alle drei Quoten eines Spiels drin sind. Die Quoten bleiben auf diesem Gerät gespeichert.</p>
     <div class="odds-head"><span></span><span>1</span><span>X</span><span>2</span><span></span></div>
     {"".join(rows)}
     <button type="button" class="linkbtn js-clear">Alle Quoten löschen</button>
   </details>"""
 
 
-def _script(games, season):
-    data = [dict(id=g["match"].match_id, lam=[round(x, 4) for x in g["lambdas"]], locked=g["locked"], tip=list(g["tip"]),
-                 home=g["home"].short, away=g["away"].short) for g in games]
-    cfg = dict(rho=model.DC_RHO, maxGoals=model.MAX_GOALS, w=model.MARKET_WEIGHT,
-               pts=[model.POINTS_EXACT, model.POINTS_DIFF, model.POINTS_TENDENCY], season=season)
-    return f"<script>const GAMES={json.dumps(data, ensure_ascii=False)};const CFG={json.dumps(cfg)};\n{JS}</script>"
-
-
 def _history(history):
     if not history:
-        return '<p class="muted">Sobald die ersten Spiele mit Empfehlung gespielt sind, steht hier, wie viele Punkte die Tipps gebracht hätten.</p>'
+        return '<div class="card empty">Noch keine Spiele ausgewertet.</div>'
     total = sum(h["punkte"] for h in history)
     n = sum(h["spiele"] for h in history)
     rows = []
     for h in reversed(history):
-        detail = " · ".join(
-            f'{escape(d["heim"])}–{escape(d["gast"])} {_tip(d["tipp"])} → {_tip(d["ergebnis"])} <b class="p{d["punkte"]}">+{d["punkte"]}</b>'
+        detail = "".join(
+            f'<li><span>{escape(d["heim"])} – {escape(d["gast"])}</span><span class="dim">{_tip(d["tipp"])} → {_tip(d["ergebnis"])}</span><b class="p{d["punkte"]}">+{d["punkte"]}</b></li>'
             for d in h["details"]
         )
         rows.append(
-            f'<details class="hist"><summary><span>{h["spieltag"]}. Spieltag</span><span><b>{h["punkte"]}</b> Punkte '
-            f'<span class="muted">aus {h["spiele"]} Spielen</span></span></summary><p class="small-text">{detail}</p></details>'
+            f'<details class="hist"><summary><span>{h["spieltag"]}. Spieltag</span><span><b>{h["punkte"]}</b> <span class="dim">Pkt.</span></span></summary>'
+            f'<ul class="hist-list">{detail}</ul></details>'
         )
-    return (
-        f'<p class="hist-total"><b>{total}</b> Punkte aus {n} Spielen · Ø {_fmt(total / n, 2)} pro Spiel</p>' + "".join(rows)
-    )
+    return f"""
+    <div class="stats">
+      <div class="statcard"><div class="v">{total}</div><div class="l">Punkte</div></div>
+      <div class="statcard"><div class="v">{_fmt(total / n, 2)}</div><div class="l">pro Spiel</div></div>
+      <div class="statcard"><div class="v">{n}</div><div class="l">Spiele</div></div>
+    </div>
+    <div class="card list">{"".join(rows)}</div>"""
+
+
+def _script(games, season):
+    data = [dict(id=g["match"].match_id, lam=[round(x, 4) for x in g["lambdas"]], locked=g["locked"], tip=list(g["tip"]))
+            for g in games]
+    cfg = dict(rho=model.DC_RHO, maxGoals=model.MAX_GOALS, w=model.MARKET_WEIGHT,
+               pts=[model.POINTS_EXACT, model.POINTS_DIFF, model.POINTS_TENDENCY], season=season, labels=CONFIDENCE)
+    return f"<script>const GAMES={json.dumps(data, ensure_ascii=False)};const CFG={json.dumps(cfg, ensure_ascii=False)};\n{JS}</script>"
 
 
 def page(season, matchday, games, teams, table, history, generated):
@@ -216,47 +245,45 @@ def page(season, matchday, games, teams, table, history, generated):
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kicktipp-Analyse · {matchday}. Spieltag</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Kicktipp · {matchday}. Spieltag</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
 <style>{CSS}</style>
 </head>
 <body>
 <main>
-  <header>
+  <header class="top">
     <p class="eyebrow">Bundesliga {season}/{(season + 1) % 100:02d}</p>
     <h1>{matchday}. Spieltag</h1>
-    <p class="muted">{_when(first)} bis {_when(last)} · aktualisiert {gen:%d.%m. %H:%M} Uhr</p>
+    <div class="meta">
+      <span class="meta-date">{_date_range(first, last)}</span>
+      <span class="meta-stand">Stand {gen:%d.%m.}, {gen:%H:%M} Uhr</span>
+    </div>
   </header>
 
-  <section class="panel">
-    <h2>Alle Tipps auf einen Blick</h2>
-    <div class="overview">{_overview(games)}</div>
-    <p class="legend"><span class="badge conf-hoch">Klare Sache</span><span class="badge conf-mittel">Leichter Favorit</span><span class="badge conf-niedrig">Offenes Spiel</span></p>
-    <p class="muted small-text ov-hint">💡 Mit Wettquoten werden die Tipps genauer: <a href="#quoten" class="js-open-odds">Quoten eintragen</a></p>
-  </section>
-{_odds_panel(games)}
+  <h2 class="sectionhead">Tipps</h2>
+  <div class="card list">{_overview(games)}</div>
+  <div class="legend"><span><i class="dot conf-hoch"></i>Klarer Favorit</span><span><i class="dot conf-mittel"></i>Leichter Favorit</span><span><i class="dot conf-niedrig"></i>Offenes Spiel</span></div>
 
-  <h2 class="section-title">Spiele im Detail</h2>
-  <p class="muted hint">Auf ein Spiel tippen, um die Analyse aufzuklappen.</p>
+  {_odds_panel(games)}
+
+  <h2 class="sectionhead">Spiele</h2>
   {cards}
 
-  <section class="panel">
-    <h2>Bilanz der Empfehlungen</h2>
-    {_history(history)}
-  </section>
+  <h2 class="sectionhead">Bilanz</h2>
+  {_history(history)}
 
-  <section class="panel about">
-    <h2>So entstehen die Tipps</h2>
-    <ol>
-      <li><b>Teamstärke:</b> Aus allen Spielen dieser und der letzten Saison wird für jedes Team eine Angriffs- und Abwehrstärke berechnet. Neuere Spiele zählen mehr. Statt nur der Tore zählt vor allem <b>xG</b> (Expected Goals), also die Qualität der Torchancen. Das sagt die Zukunft besser voraus als das Ergebnis allein.</li>
-      <li><b>Wettquoten (optional):</b> Wenn du unter „Quoten eintragen“ Quoten einträgst, fließen sie zu 65 % in die Torerwartung ein. Quoten enthalten Infos, die das Modell nicht kennt, z.&nbsp;B. Verletzungen und Aufstellungen.</li>
-      <li><b>Ergebnis-Wahrscheinlichkeiten:</b> Aus den erwarteten Toren wird für jedes Ergebnis (0:0, 1:0, 2:1 …) eine Wahrscheinlichkeit berechnet.</li>
-      <li><b>Bester Tipp:</b> Für jeden möglichen Tipp werden die durchschnittlich zu erwartenden Kicktipp-Punkte (4/3/2) berechnet. Empfohlen wird der Tipp mit dem höchsten Wert. Das ist nicht immer das wahrscheinlichste Ergebnis.</li>
-    </ol>
-    <p class="muted">Getestet an den Saisons 24/25 und 25/26: ca. 1,3 Punkte pro Spiel und die richtige Tendenz in etwa jedem zweiten Spiel. Zum Vergleich: Immer „2:1 Heimsieg“ bringt ca. 1,07 Punkte. Fußball bleibt Fußball. 🍀</p>
-    <p class="muted small-text">Daten: OpenLigaDB, Understat.</p>
-  </section>
+  <h2 class="sectionhead">So wird gerechnet</h2>
+  <div class="card about">
+    <ul>
+      <li>Angriffs- und Abwehrstärke jedes Teams aus dieser und der letzten Saison, neuere Spiele zählen mehr</li>
+      <li>Grundlage sind vor allem die xG-Werte (Qualität der Torchancen), nicht nur die Tore</li>
+      <li>Eingetragene Quoten zählen zu 65 % mit</li>
+      <li>Empfohlen wird der Tipp mit den meisten erwarteten Punkten (4/3/2)</li>
+    </ul>
+    <p class="dim">Daten: OpenLigaDB, Understat</p>
+  </div>
 </main>
 {_script(games, season)}
 </body>
@@ -265,141 +292,179 @@ def page(season, matchday, games, teams, table, history, generated):
 
 CSS = """
 :root{
-  --bg:#f4f5f7;--card:#fff;--text:#16181d;--muted:#667085;--line:#e4e7ec;
-  --home:#2f6fdb;--draw:#9aa3b2;--away:#e0663a;
-  --hoch:#1f9d55;--mittel:#c98a0b;--niedrig:#8a94a6;
-  --win:#1f9d55;--loss:#d64545;--accent:#2f6fdb;
+  --bg:#fff;--card:#fff;--text:#000;--text2:#8e8e93;--text3:#aeaeb2;
+  --sep:rgba(60,60,67,.09);--border:rgba(17,24,39,.06);
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 10px 26px -12px rgba(16,24,40,.13);
+  --accent:#0f766e;--accent-soft:rgba(13,148,136,.12);--accent-line:rgba(13,148,136,.4);
+  --green:#1f9d47;--green-soft:rgba(48,209,88,.13);--green-line:rgba(48,209,88,.5);
+  --blue:#0a6fd6;--blue-soft:rgba(10,132,255,.13);--blue-line:rgba(10,132,255,.5);
+  --gray-soft:rgba(120,120,128,.12);--gray-line:rgba(120,120,128,.4);
+  --red:#ff453a;--field:#f2f2f7;--radius:20px;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0f1115;--card:#181b21;--text:#e8eaee;--muted:#98a2b3;--line:#2a2f38;
-    --home:#5b8ff0;--draw:#6b7486;--away:#f08358;
-    --hoch:#3fbf75;--mittel:#e0a52b;--niedrig:#7d879a;--win:#3fbf75;--loss:#ef6262;--accent:#5b8ff0;
+    --bg:#000;--card:#1c1c1e;--text:#fff;--text2:#98989f;--text3:#636366;
+    --sep:rgba(255,255,255,.07);--border:rgba(255,255,255,.07);
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 30px -14px rgba(0,0,0,.6);
+    --accent:#2dd4bf;--accent-soft:rgba(45,212,191,.18);--accent-line:rgba(45,212,191,.45);
+    --green:#30d158;--blue:#4c9dff;--blue-soft:rgba(76,157,255,.16);--blue-line:rgba(76,157,255,.5);
+    --gray-line:rgba(170,170,175,.3);--field:#2c2c2e;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0f1115;--card:#181b21;--text:#e8eaee;--muted:#98a2b3;--line:#2a2f38;
-  --home:#5b8ff0;--draw:#6b7486;--away:#f08358;
-  --hoch:#3fbf75;--mittel:#e0a52b;--niedrig:#7d879a;--win:#3fbf75;--loss:#ef6262;--accent:#5b8ff0;
+  --bg:#000;--card:#1c1c1e;--text:#fff;--text2:#98989f;--text3:#636366;
+  --sep:rgba(255,255,255,.07);--border:rgba(255,255,255,.07);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 30px -14px rgba(0,0,0,.6);
+  --accent:#2dd4bf;--accent-soft:rgba(45,212,191,.18);--accent-line:rgba(45,212,191,.45);
+  --green:#30d158;--blue:#4c9dff;--blue-soft:rgba(76,157,255,.16);--blue-line:rgba(76,157,255,.5);
+  --gray-line:rgba(170,170,175,.3);--field:#2c2c2e;
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
-main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
-header{margin-bottom:20px}
-.eyebrow{margin:0;color:var(--accent);font-weight:600;font-size:14px;letter-spacing:.02em}
-h1{margin:2px 0 4px;font-size:32px;line-height:1.15}
-h2{font-size:20px;margin:0 0 12px}
-h3{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:16px 0 8px;font-weight:600}
-h4{margin:0 0 2px;font-size:16px;display:flex;align-items:center;gap:6px}
-p{margin:0 0 8px}
-.muted{color:var(--muted)}
-.small-text{font-size:13px}
-.section-title{margin-top:28px;margin-bottom:2px}
-.hint{font-size:14px;margin-bottom:12px}
-.panel,.card{background:var(--card);border:1px solid var(--line);border-radius:14px}
-.panel{padding:16px;margin:16px 0}
-.card{margin:10px 0;overflow:hidden}
-.logo{object-fit:contain;flex:none}
-.overview{display:flex;flex-direction:column}
-.ov-row{display:grid;grid-template-columns:96px 1fr auto 1fr;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line);color:inherit;text-decoration:none}
-.ov-row:first-child{border-top:0}
-.ov-when{font-size:13px}
-.ov-h{text-align:right;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ov-a{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tipbox{display:inline-flex;align-items:center;gap:2px;justify-content:center;min-width:64px;padding:6px 10px;border-radius:10px;font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;color:#fff;background:var(--niedrig)}
-.tipbox.small{min-width:52px;font-size:17px;padding:3px 8px}
-.conf-hoch.tipbox,.badge.conf-hoch{background:var(--hoch)}
-.conf-mittel.tipbox,.badge.conf-mittel{background:var(--mittel)}
-.conf-niedrig.tipbox,.badge.conf-niedrig{background:var(--niedrig)}
-.lock{font-size:12px;margin-left:2px}
-.badge{display:inline-block;color:#fff;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px}
-.legend{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0}
-summary{list-style:none;cursor:pointer;padding:14px 16px}
-summary::-webkit-details-marker{display:none}
-.when{font-size:13px;color:var(--muted);text-align:center;margin-bottom:6px}
-.matchup{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
-.t{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;min-width:0}
-.t.home{justify-content:flex-end;text-align:right}
-.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.bar{display:flex;height:8px;border-radius:99px;overflow:hidden;margin-top:12px;background:var(--line)}
-.seg.h,.dot.h{background:var(--home)}.seg.d,.dot.d{background:var(--draw)}.seg.a,.dot.a{background:var(--away)}
-.bar-legend{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px;gap:6px}
-.bar-legend span{white-space:nowrap}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
-.summary-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
-.alt{text-align:center;font-size:13px;color:var(--muted);margin:8px 0 0}
-.more{font-size:13px;color:var(--accent);font-weight:600}
-.more::after{content:" ▾"}
-details[open] .more::after{content:" ▴"}
-.details{padding:0 16px 16px;border-top:1px solid var(--line)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.big{font-size:26px;font-weight:800;margin:0;font-variant-numeric:tabular-nums}
-.results{display:flex;flex-wrap:wrap;gap:6px}
-.res{border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-weight:700;font-variant-numeric:tabular-nums}
-.res small{font-weight:400;color:var(--muted)}
-table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-.ev th,.ev td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}
-.ev th{font-size:12px;color:var(--muted);font-weight:600}
-.ev tr.best td{font-weight:800;color:var(--hoch)}
-.note{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:14px;margin:14px 0 0}
-.note.warn{border-left:3px solid var(--mittel)}
-.teams{margin-top:8px}
-.team-col dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:10px 0 0;font-size:14px}
-.team-col dt{color:var(--muted)}
-.team-col dd{margin:0}
-.chip{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:5px;font-size:11px;font-weight:700;color:#fff;margin-right:2px}
-.chip.S{background:var(--win)}.chip.U{background:var(--draw)}.chip.N{background:var(--loss)}
-.h2h{list-style:none;padding:0;margin:0;font-size:14px}
-.h2h li{padding:3px 0}
-.hist-total{font-size:18px}
-.hist{border-top:1px solid var(--line)}
-.hist summary{display:flex;justify-content:space-between;padding:10px 0}
-.p4{color:var(--hoch)}.p3{color:var(--hoch)}.p2{color:var(--mittel)}.p0{color:var(--loss)}
-.about ol{padding-left:20px;margin:0 0 12px}
-.about li{margin-bottom:8px}
-@media (max-width:560px){
-  .grid2{grid-template-columns:1fr;gap:0}
-  .teams{gap:18px}
-  .t{font-size:15px;gap:6px}
-  .matchup{gap:6px}
-  .t .logo{width:22px;height:22px}
-  .tipbox{min-width:56px;font-size:20px}
-  .ov-row{grid-template-columns:1fr auto 1fr;row-gap:0}
-  .ov-when{grid-column:1/-1;text-align:center;font-size:12px}
-  h1{font-size:28px}
-  .bar-legend{font-size:11px}
-}
-"""
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+main{max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 48px)}
+p{margin:0}
+.dim{color:var(--text2)}
 
-CSS += """
-.alt:empty{display:none}
-.mine{text-align:center;font-size:13px;color:var(--accent);font-weight:600;margin:6px 0 0}
-.ov-hint{margin:10px 0 0}
-.ov-hint a{color:var(--accent);font-weight:600}
-.ov-row.has-mine .tipbox{box-shadow:0 0 0 2px var(--accent)}
-.odds>summary{display:flex;justify-content:space-between;align-items:center;padding:0}
-.odds>summary h2{margin:0}
-.odds[open]>summary{margin-bottom:10px}
-.opt{font-size:13px;font-weight:500}
-.odds-head,.odds-row{display:grid;grid-template-columns:1fr 58px 58px 58px 70px;gap:6px;align-items:center}
-.odds-head{font-size:12px;color:var(--muted);font-weight:600;text-align:center;margin-top:8px}
-.odds-row{padding:6px 0;border-top:1px solid var(--line)}
+/* Kopf */
+.top{padding:0 4px 6px}
+.eyebrow{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.01em}
+h1{font-size:34px;font-weight:700;letter-spacing:-.02em;margin:2px 0 10px;line-height:1.1}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.meta-date{font-size:15px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--border);
+  box-shadow:var(--shadow);padding:6px 12px;border-radius:20px}
+.meta-stand{font-size:12px;color:var(--text2)}
+
+.sectionhead{font-size:13px;font-weight:600;color:var(--text2);margin:24px 4px 8px}
+
+/* Karten */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px}
+.card.list{padding:0 16px;overflow:hidden}
+summary{list-style:none;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+.more{font-size:13px;font-weight:600;color:var(--text2);white-space:nowrap}
+.more::after{content:"";display:inline-block;width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg);margin:0 2px 3px 7px;transition:transform .15s}
+details[open]>summary .more::after{transform:rotate(-135deg);margin:0 2px -1px 7px;vertical-align:middle}
+
+/* Übersicht */
+.ov-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:.5px solid var(--sep);color:inherit;text-decoration:none}
+.ov-row:first-child{border-top:0}
+.ov-teams{display:flex;flex-direction:column;min-width:0}
+.ov-teams b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ov-teams span{font-size:12px;color:var(--text2);margin-top:1px}
+.pill{flex:none;min-width:54px;text-align:center;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;padding:5px 12px;border-radius:20px;border:1.5px solid}
+.ov-row.has-mine .pill{box-shadow:0 0 0 3px var(--accent-soft)}
+.conf-hoch.pill,.conf-hoch.badge{color:var(--green);background:var(--green-soft);border-color:var(--green-line)}
+.conf-mittel.pill,.conf-mittel.badge{color:var(--blue);background:var(--blue-soft);border-color:var(--blue-line)}
+.conf-niedrig.pill,.conf-niedrig.badge{color:var(--text2);background:var(--gray-soft);border-color:var(--gray-line)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:12px;color:var(--text2);margin:2px 0 14px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;border:1.5px solid}
+.dot.conf-hoch{background:var(--green-soft);border-color:var(--green)}
+.dot.conf-mittel{background:var(--blue-soft);border-color:var(--blue)}
+.dot.conf-niedrig{background:var(--gray-soft);border-color:var(--text3)}
+
+/* Spielkarte */
+.match-card>details>summary{padding:15px}
+.ctime{text-align:center;font-size:13px;color:var(--text2);font-weight:500;margin-bottom:12px}
+.match{display:flex;align-items:center;gap:8px}
+.side{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.crest{object-fit:contain;flex:none}
+.tname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.center{flex-shrink:0;min-width:96px;display:flex;flex-direction:column;align-items:center}
+.cap{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.lock{font-size:10px;margin-left:3px}
+.score{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.score .sep{color:var(--text3);margin:0 5px;font-weight:600}
+.mine{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);padding:1px 8px;border-radius:20px;margin-top:3px}
+.mine[hidden]{display:none}
+.bar{display:flex;height:6px;border-radius:99px;overflow:hidden;margin-top:14px;background:var(--sep);gap:2px}
+.seg{border-radius:99px}
+.seg.h{background:var(--accent)}.seg.d{background:var(--text3)}.seg.a{background:var(--blue)}
+.bar-legend{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+.bar-legend span:nth-child(1){color:var(--accent)}
+.bar-legend span:nth-child(2){color:var(--text2);font-weight:500}
+.bar-legend span:nth-child(3){color:var(--blue)}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
+.badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid;white-space:nowrap}
+.alt{flex:1;text-align:center;font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.details{border-top:.5px solid var(--sep);padding:4px 15px 15px}
+.details section{padding:12px 0;border-bottom:.5px solid var(--sep)}
+.details section:last-child{border-bottom:0;padding-bottom:0}
+.details h3{font-size:13px;font-weight:600;color:var(--text2);margin:0 0 8px}
+.xg{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.results{display:flex;flex-wrap:wrap;gap:6px}
+.res{background:var(--field);border-radius:10px;padding:4px 10px;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.res small{font-weight:500;color:var(--text2);margin-left:2px}
+table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:15px}
+.ev td{padding:6px 0;border-top:.5px solid var(--sep)}
+.ev tr:first-child td{border-top:0}
+.ev td:last-child{text-align:right;color:var(--text2)}
+.ev tr.best td{font-weight:700;color:var(--accent)}
+.teams{display:flex;flex-direction:column;gap:16px}
+.team-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.team-head div{display:flex;flex-direction:column}
+.team-head b{font-size:15px}
+.team-head span{font-size:12px;color:var(--text2)}
+.team-block dl{display:grid;grid-template-columns:96px 1fr;gap:6px 10px;margin:0;font-size:14px;align-items:center}
+.team-block dt{color:var(--text2)}
+.team-block dd{margin:0}
+.chip{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;font-size:11px;font-weight:700;margin-right:3px}
+.chip.S{color:var(--green);background:var(--green-soft)}
+.chip.U{color:var(--text2);background:var(--gray-soft)}
+.chip.N{color:var(--red);background:rgba(255,69,58,.13)}
+.h2h{list-style:none;padding:0;margin:0;font-size:14px}
+.h2h li{display:grid;grid-template-columns:1fr auto 70px;gap:10px;padding:5px 0}
+.h2h li .dim{text-align:right;font-size:12px}
+.h2h li.dim{display:block}
+
+/* Quoten */
+.odds{padding:0 16px}
+.odds>summary{display:flex;justify-content:space-between;align-items:center;padding:15px 0}
+.odds-title{font-size:16px;font-weight:600}
+.odds-help{font-size:13px;color:var(--text2);line-height:1.45;margin-bottom:6px}
+.odds-head,.odds-row{display:grid;grid-template-columns:1fr 56px 56px 56px 64px;gap:6px;align-items:center}
+.odds-head{font-size:12px;color:var(--text2);font-weight:600;text-align:center;margin-top:8px}
+.odds-row{padding:8px 0;border-top:.5px solid var(--sep)}
 .odds-match{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.odd{width:100%;padding:8px 4px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:16px;text-align:center;font-variant-numeric:tabular-nums}
-.odd:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
-.odd.bad{border-color:var(--loss)}
-.odd:disabled{opacity:.45}
-.odds-state{font-size:12px;color:var(--muted);text-align:right}
-.odds-state.ok{color:var(--hoch);font-weight:700}
-.odds-state.err{color:var(--loss)}
-.linkbtn{background:none;border:0;padding:10px 0 0;color:var(--accent);font:inherit;font-size:14px;cursor:pointer}
-@media (max-width:560px){
+.odd{width:100%;padding:8px 2px;border:1.5px solid transparent;border-radius:10px;background:var(--field);color:var(--text);font:inherit;
+  font-size:16px;text-align:center;font-variant-numeric:tabular-nums;-webkit-appearance:none}
+.odd::placeholder{color:var(--text3)}
+.odd:focus{outline:none;border-color:var(--accent-line);background:var(--accent-soft)}
+.odd.bad{border-color:var(--red)}
+.odd:disabled{opacity:.4}
+.odds-state{font-size:12px;color:var(--text2);text-align:right}
+.odds-state.ok{color:var(--accent);font-weight:700}
+.odds-state.err{color:var(--red)}
+.linkbtn{background:none;border:0;padding:6px 0 16px;color:var(--accent);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+
+/* Bilanz */
+.stats{display:flex;gap:10px;margin-bottom:12px}
+.statcard{flex:1;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:13px 15px;box-shadow:var(--shadow)}
+.statcard .v{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.statcard .l{font-size:12px;color:var(--text2);margin-top:2px}
+.hist{border-top:.5px solid var(--sep)}
+.hist:first-child{border-top:0}
+.hist summary{display:flex;justify-content:space-between;padding:13px 0;font-size:15px;font-weight:600}
+.hist-list{list-style:none;padding:0 0 10px;margin:0;font-size:13px}
+.hist-list li{display:grid;grid-template-columns:1fr auto 30px;gap:10px;padding:4px 0}
+.hist-list b{text-align:right}
+.p4,.p3{color:var(--green)}.p2{color:var(--blue)}.p0{color:var(--text3)}
+.empty{padding:15px 16px;font-size:14px;color:var(--text2)}
+
+.about{padding:14px 16px;font-size:14px;line-height:1.5}
+.about ul{margin:0 0 8px;padding-left:18px}
+.about li{margin-bottom:4px}
+.about .dim{font-size:12px}
+
+@media (max-width:400px){
   .odds-head,.odds-row{grid-template-columns:1fr 52px 52px 52px;row-gap:4px}
   .odds-match{grid-column:1/-1}
-  .odds-head span:first-child{display:none}
-  .odds-head{grid-template-columns:1fr 52px 52px 52px}
+  .odds-head span:first-child,.odds-head span:last-child{display:none}
   .odds-head span:nth-child(2){grid-column:2}
-  .odds-head span:last-child{display:none}
   .odds-state{grid-column:1;grid-row:2;text-align:left}
   .odds-state.err{grid-column:1/-1;grid-row:3}
   .odd[data-k="1"]{grid-column:2;grid-row:2}
@@ -413,6 +478,7 @@ JS = r"""
 const fmt=(x,d)=>x.toFixed(d).replace('.',',');
 const pct=p=>Math.round(p*100)+' %';
 const tipStr=t=>t[0]+':'+t[1];
+const scoreHtml=t=>t[0]+'<span class="sep">:</span>'+t[1];
 const sign=x=>x>0?1:x<0?-1:0;
 
 function scoreMatrix(lh,la){
@@ -459,26 +525,25 @@ function lambdasFromMarket(pH,pA){
 function blend(mod,mkt){ return mod.map((v,i)=>Math.exp((1-CFG.w)*Math.log(v)+CFG.w*Math.log(mkt[i]))); }
 function confidence(p,t){
   const q=t[0]>t[1]?p[0]:t[0]===t[1]?p[1]:p[2];
-  return q>=0.62?['hoch','Klare Sache']:q>=0.45?['mittel','Leichter Favorit']:['niedrig','Offenes Spiel'];
+  const level=q>=0.62?'hoch':q>=0.45?'mittel':'niedrig';
+  return [level,CFG.labels[level]];
 }
 function setConf(el,level){ el.classList.remove('conf-hoch','conf-mittel','conf-niedrig'); el.classList.add('conf-'+level); }
 
 function render(idx, lam, mine){
-  const g=GAMES[idx], card=document.querySelector('.card[data-idx="'+idx+'"]'), ov=document.querySelector('.ov-row[data-idx="'+idx+'"]');
+  const g=GAMES[idx], card=document.querySelector('.match-card[data-idx="'+idx+'"]'), ov=document.querySelector('.ov-row[data-idx="'+idx+'"]');
   const m=scoreMatrix(lam[0],lam[1]), p=outcome(m), evs=expectedPoints(m).slice(0,4);
   const tip=g.locked?g.tip:evs[0][0];
   const [level,label]=confidence(p,tip);
-  card.querySelector('.js-tiptext').textContent=tipStr(tip);
-  setConf(card.querySelector('.js-tip'),level);
+  card.querySelector('.js-tiptext').innerHTML=scoreHtml(tip);
   const badge=card.querySelector('.js-badge'); setConf(badge,level); badge.textContent=label;
   card.querySelector('.js-bar').innerHTML=
     '<div class="bar" role="img" aria-label="Heimsieg '+pct(p[0])+', Unentschieden '+pct(p[1])+', Auswärtssieg '+pct(p[2])+'">'+
     '<span class="seg h" style="width:'+(p[0]*100).toFixed(1)+'%"></span><span class="seg d" style="width:'+(p[1]*100).toFixed(1)+'%"></span><span class="seg a" style="width:'+(p[2]*100).toFixed(1)+'%"></span></div>'+
-    '<div class="bar-legend"><span><i class="dot h"></i>'+esc(g.home)+' '+pct(p[0])+'</span><span><i class="dot d"></i>Remis '+pct(p[1])+'</span><span><i class="dot a"></i>'+esc(g.away)+' '+pct(p[2])+'</span></div>';
+    '<div class="bar-legend"><span>'+pct(p[0])+'</span><span>Remis '+pct(p[1])+'</span><span>'+pct(p[2])+'</span></div>';
   const alts=g.locked?[]:evs.slice(1).filter(e=>evs[0][1]-e[1]<0.03).map(e=>tipStr(e[0]));
-  card.querySelector('.js-alt').textContent=alts.length?'Praktisch genauso gut: '+alts.join(', '):'';
+  card.querySelector('.js-alt').textContent=alts.length?'Alternativ '+alts.join(', '):'';
   card.querySelector('.js-mine').hidden=!mine;
-  card.querySelector('.js-draw').hidden=tip[0]!==tip[1];
   card.querySelector('.js-xg').textContent=fmt(lam[0],2)+' : '+fmt(lam[1],2);
   const likely=[]; for(let i=0;i<6;i++) for(let j=0;j<6;j++) likely.push([i,j,m[i][j]]);
   likely.sort((x,y)=>y[2]-x[2]);
@@ -488,7 +553,6 @@ function render(idx, lam, mine){
   ov.classList.toggle('has-mine',!!mine);
   return tip;
 }
-function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
 const KEY=id=>'kicktipp-quoten-'+CFG.season+'-'+id;
 const store={
@@ -506,6 +570,7 @@ function update(row, save){
   const idx=+row.dataset.idx, g=GAMES[idx];
   if(g.locked) return;
   const inputs=[...row.querySelectorAll('.odd')], vals=inputs.map(i=>parseOdd(i.value)), state=row.querySelector('.odds-state');
+  const bad=vals.some(v=>Number.isNaN(v));
   inputs.forEach((inp,k)=>inp.classList.toggle('bad',Number.isNaN(vals[k])));
   const complete=vals.every(v=>typeof v==='number'&&!Number.isNaN(v));
   if(save) store.set(g.id, inputs.some(i=>i.value.trim())?inputs.map(i=>i.value.trim()):null);
@@ -513,11 +578,11 @@ function update(row, save){
     const inv=vals.map(v=>1/v), s=inv[0]+inv[1]+inv[2];
     const lam=blend(g.lam, lambdasFromMarket(inv[0]/s, inv[2]/s));
     const tip=render(idx, lam, true);
-    state.textContent='✓ Tipp '+tipStr(tip); state.className='odds-state ok';
+    state.textContent='Tipp '+tipStr(tip); state.className='odds-state ok';
     modelState[idx]=false;
   }else{
     if(!modelState[idx]){ render(idx, g.lam, false); modelState[idx]=true; }
-    state.textContent=vals.some(v=>Number.isNaN(v))?'Quoten müssen über 1 liegen, z. B. 1,45':''; state.className='odds-state'+(vals.some(v=>Number.isNaN(v))?' err':'');
+    state.textContent=bad?'Quoten müssen über 1 liegen, z. B. 1,45':''; state.className='odds-state'+(bad?' err':'');
   }
 }
 document.querySelectorAll('.odds-row').forEach(row=>{
@@ -529,6 +594,5 @@ document.querySelector('.js-clear').addEventListener('click',()=>{
   if(!confirm('Alle eingetragenen Quoten löschen?')) return;
   document.querySelectorAll('.odds-row').forEach(row=>{ row.querySelectorAll('.odd:not(:disabled)').forEach(i=>i.value=''); update(row,true); });
 });
-document.querySelector('.js-open-odds').addEventListener('click',()=>{ document.getElementById('quoten').open=true; });
 })();
 """
