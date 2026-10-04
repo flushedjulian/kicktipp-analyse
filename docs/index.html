@@ -131,6 +131,7 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
 .odd:disabled{opacity:.45}
 .odds-state{font-size:12px;color:var(--muted);text-align:right}
 .odds-state.ok{color:var(--hoch);font-weight:700}
+.odds-state.err{color:var(--loss)}
 .linkbtn{background:none;border:0;padding:10px 0 0;color:var(--accent);font:inherit;font-size:14px;cursor:pointer}
 @media (max-width:560px){
   .odds-head,.odds-row{grid-template-columns:1fr 52px 52px 52px;row-gap:4px}
@@ -140,6 +141,10 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
   .odds-head span:nth-child(2){grid-column:2}
   .odds-head span:last-child{display:none}
   .odds-state{grid-column:1;grid-row:2;text-align:left}
+  .odds-state.err{grid-column:1/-1;grid-row:3}
+  .odd[data-k="1"]{grid-column:2;grid-row:2}
+  .odd[data-k="X"]{grid-column:3;grid-row:2}
+  .odd[data-k="2"]{grid-column:4;grid-row:2}
 }
 </style>
 </head>
@@ -148,7 +153,7 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
   <header>
     <p class="eyebrow">Bundesliga 2026/27</p>
     <h1>5. Spieltag</h1>
-    <p class="muted">Fr 09.10. 20:30 bis So 11.10. 17:30 · aktualisiert 04.10. 12:09 Uhr</p>
+    <p class="muted">Fr 09.10. 20:30 bis So 11.10. 17:30 · aktualisiert 04.10. 12:19 Uhr</p>
   </header>
 
   <section class="panel">
@@ -736,7 +741,7 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
     <p class="muted small-text">Daten: OpenLigaDB, Understat.</p>
   </section>
 </main>
-<script>const GAMES=[{"id": 83192, "lam": [2.2648, 0.8198], "locked": false, "tip": [1, 0], "home": "Dortmund", "away": "Bremen"}, {"id": 83194, "lam": [2.4268, 1.1093], "locked": false, "tip": [2, 1], "home": "Hoffenheim", "away": "HSV"}, {"id": 83196, "lam": [1.5503, 2.7546], "locked": false, "tip": [1, 2], "home": "Augsburg", "away": "Bayern"}, {"id": 83197, "lam": [1.9042, 1.9226], "locked": false, "tip": [1, 2], "home": "Mainz", "away": "Leverkusen"}, {"id": 83198, "lam": [1.9475, 1.4944], "locked": false, "tip": [2, 1], "home": "Union Berlin", "away": "Elversberg"}, {"id": 83200, "lam": [1.2955, 1.8276], "locked": false, "tip": [1, 2], "home": "Paderborn", "away": "Stuttgart"}, {"id": 83193, "lam": [2.5176, 1.3149], "locked": false, "tip": [2, 1], "home": "Leipzig", "away": "Frankfurt"}, {"id": 83199, "lam": [2.1744, 1.3962], "locked": false, "tip": [2, 1], "home": "Köln", "away": "Gladbach"}, {"id": 83195, "lam": [2.2974, 1.0619], "locked": false, "tip": [2, 1], "home": "Freiburg", "away": "S04"}];const CFG={"rho": -0.06, "maxGoals": 10, "w": 0.65, "pts": [4, 3, 2], "season": 2026};
+<script>const GAMES=[{"id": 83192, "lam": [2.2648, 0.8198], "locked": false, "tip": [1, 0], "home": "Dortmund", "away": "Bremen"}, {"id": 83194, "lam": [2.4268, 1.1093], "locked": false, "tip": [2, 1], "home": "Hoffenheim", "away": "HSV"}, {"id": 83196, "lam": [1.5503, 2.7546], "locked": false, "tip": [1, 2], "home": "Augsburg", "away": "Bayern"}, {"id": 83197, "lam": [1.9042, 1.9226], "locked": false, "tip": [1, 2], "home": "Mainz", "away": "Leverkusen"}, {"id": 83198, "lam": [1.9475, 1.4944], "locked": false, "tip": [2, 1], "home": "Union Berlin", "away": "Elversberg"}, {"id": 83200, "lam": [1.2955, 1.8277], "locked": false, "tip": [1, 2], "home": "Paderborn", "away": "Stuttgart"}, {"id": 83193, "lam": [2.5176, 1.3149], "locked": false, "tip": [2, 1], "home": "Leipzig", "away": "Frankfurt"}, {"id": 83199, "lam": [2.1744, 1.3962], "locked": false, "tip": [2, 1], "home": "Köln", "away": "Gladbach"}, {"id": 83195, "lam": [2.2974, 1.0619], "locked": false, "tip": [2, 1], "home": "Freiburg", "away": "S04"}];const CFG={"rho": -0.06, "maxGoals": 10, "w": 0.65, "pts": [4, 3, 2], "season": 2026};
 
 (function(){
 const fmt=(x,d)=>x.toFixed(d).replace('.',',');
@@ -846,7 +851,7 @@ function update(row, save){
     modelState[idx]=false;
   }else{
     if(!modelState[idx]){ render(idx, g.lam, false); modelState[idx]=true; }
-    state.textContent=vals.some(v=>Number.isNaN(v))?'Quote prüfen':''; state.className='odds-state';
+    state.textContent=vals.some(v=>Number.isNaN(v))?'Quoten müssen über 1 liegen, z. B. 1,45':''; state.className='odds-state'+(vals.some(v=>Number.isNaN(v))?' err':'');
   }
 }
 document.querySelectorAll('.odds-row').forEach(row=>{

@@ -391,6 +391,7 @@ CSS += """
 .odd:disabled{opacity:.45}
 .odds-state{font-size:12px;color:var(--muted);text-align:right}
 .odds-state.ok{color:var(--hoch);font-weight:700}
+.odds-state.err{color:var(--loss)}
 .linkbtn{background:none;border:0;padding:10px 0 0;color:var(--accent);font:inherit;font-size:14px;cursor:pointer}
 @media (max-width:560px){
   .odds-head,.odds-row{grid-template-columns:1fr 52px 52px 52px;row-gap:4px}
@@ -400,6 +401,10 @@ CSS += """
   .odds-head span:nth-child(2){grid-column:2}
   .odds-head span:last-child{display:none}
   .odds-state{grid-column:1;grid-row:2;text-align:left}
+  .odds-state.err{grid-column:1/-1;grid-row:3}
+  .odd[data-k="1"]{grid-column:2;grid-row:2}
+  .odd[data-k="X"]{grid-column:3;grid-row:2}
+  .odd[data-k="2"]{grid-column:4;grid-row:2}
 }
 """
 
@@ -512,7 +517,7 @@ function update(row, save){
     modelState[idx]=false;
   }else{
     if(!modelState[idx]){ render(idx, g.lam, false); modelState[idx]=true; }
-    state.textContent=vals.some(v=>Number.isNaN(v))?'Quote prüfen':''; state.className='odds-state';
+    state.textContent=vals.some(v=>Number.isNaN(v))?'Quoten müssen über 1 liegen, z. B. 1,45':''; state.className='odds-state'+(vals.some(v=>Number.isNaN(v))?' err':'');
   }
 }
 document.querySelectorAll('.odds-row').forEach(row=>{
