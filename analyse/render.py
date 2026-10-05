@@ -258,7 +258,9 @@ def _script(games, season):
             for g in games]
     cfg = dict(rho=model.DC_RHO, maxGoals=model.MAX_GOALS, w=model.MARKET_WEIGHT,
                pts=[model.POINTS_EXACT, model.POINTS_DIFF, model.POINTS_TENDENCY], season=season, labels=CONFIDENCE)
-    return f"<script>const GAMES={json.dumps(data, ensure_ascii=False)};const CFG={json.dumps(cfg, ensure_ascii=False)};\n{JS}</script>"
+    # "<" maskieren, damit Texte aus fremden Quellen (z. B. Teamnamen) das <script> nicht beenden können
+    safe = lambda obj: json.dumps(obj, ensure_ascii=False).replace("<", "\\u003c")
+    return f"<script>const GAMES={safe(data)};const CFG={safe(cfg)};\n{JS}</script>"
 
 
 def page(season, matchday, games, teams, table, history, generated):
