@@ -1,4 +1,4 @@
-"""Daten holen: Spielplan/Ergebnisse (OpenLigaDB) und xG (Understat)."""
+"""Daten holen: Spielplan/Ergebnisse (OpenLigaDB) und Wettquoten (football-data.co.uk)."""
 
 import difflib
 import gzip
@@ -7,7 +7,6 @@ import os
 import ssl
 import unicodedata
 import urllib.request
-from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
@@ -39,8 +38,6 @@ class Match:
     finished: bool
     home_goals: int | None = None
     away_goals: int | None = None
-    home_xg: float | None = None
-    away_xg: float | None = None
     scorers: list = field(default_factory=list)  # (team_id, name, is_own_goal)
 
 
@@ -92,38 +89,6 @@ def load_season(season, teams):
         matches.append(match)
     return matches
 
-
-def attach_understat_xg(season, matches, teams):
-    """Hängt xG-Werte von Understat an die Spiele. Teams werden über gemeinsame Anstoßzeiten zugeordnet,
-    damit keine Namensliste gepflegt werden muss. Gibt die Anzahl zugeordneter Spiele zurück."""
-    try:
-        data = _get_json(
-            f"https://understat.com/getLeagueData/Bundesliga/{season}",
-            headers={"X-Requested-With": "XMLHttpRequest"},
-        )
-    except Exception as e:  # xG ist ein Bonus – ohne geht es auch
-        print(f"Understat {season} nicht erreichbar: {e}")
-        return 0
-
-    by_day = defaultdict(list)
-    for m in matches:
-        if m.finished:
-            by_day[m.kickoff_utc.date()].append(m)
-
-    n = 0
-    for g in data["dates"]:
-        if not g["isResult"]:
-            continue
-        day = datetime.strptime(g["datetime"], "%Y-%m-%d %H:%M:%S").date()
-        candidates = by_day.get(day, [])
-        if not candidates:
-            continue
-        best = max(candidates, key=lambda m: _similar(g["h"]["title"], teams[m.home_id].name) + _similar(g["a"]["title"], teams[m.away_id].name))
-        score = _similar(g["h"]["title"], teams[best.home_id].name) + _similar(g["a"]["title"], teams[best.away_id].name)
-        if score >= 1.0:
-            best.home_xg, best.away_xg = float(g["xG"]["h"]), float(g["xG"]["a"])
-            n += 1
-    return n
 
 
 # ---------------------------------------------------------------- Teamnamen vergleichen

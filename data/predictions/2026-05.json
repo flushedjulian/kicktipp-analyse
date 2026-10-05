@@ -1,20 +1,20 @@
 {
  "saison": 2026,
  "spieltag": 5,
- "erstellt": "2026-10-05T18:26+00:00",
+ "erstellt": "2026-10-05T18:32+00:00",
  "spiele": [
   {
    "match_id": 83192,
    "heim": "Dortmund",
    "gast": "Bremen",
    "tipp": [
-    1,
+    2,
     0
    ],
    "p": [
-    0.695,
-    0.19,
-    0.115
+    0.713,
+    0.182,
+    0.105
    ],
    "quoten": null,
    "quoten_seit": null
@@ -28,9 +28,9 @@
     1
    ],
    "p": [
-    0.659,
-    0.189,
-    0.153
+    0.63,
+    0.2,
+    0.17
    ],
    "quoten": null,
    "quoten_seit": null
@@ -44,9 +44,9 @@
     2
    ],
    "p": [
-    0.196,
-    0.178,
-    0.626
+    0.183,
+    0.181,
+    0.636
    ],
    "quoten": null,
    "quoten_seit": null
@@ -60,9 +60,9 @@
     2
    ],
    "p": [
-    0.386,
-    0.222,
-    0.393
+    0.376,
+    0.247,
+    0.377
    ],
    "quoten": null,
    "quoten_seit": null
@@ -72,13 +72,13 @@
    "heim": "Union Berlin",
    "gast": "Elversberg",
    "tipp": [
-    2,
-    1
+    1,
+    2
    ],
    "p": [
-    0.478,
-    0.23,
-    0.292
+    0.377,
+    0.237,
+    0.386
    ],
    "quoten": null,
    "quoten_seit": null
@@ -92,9 +92,9 @@
     2
    ],
    "p": [
-    0.266,
-    0.241,
-    0.493
+    0.287,
+    0.259,
+    0.454
    ],
    "quoten": null,
    "quoten_seit": null
@@ -108,9 +108,9 @@
     1
    ],
    "p": [
-    0.631,
-    0.188,
-    0.18
+    0.62,
+    0.191,
+    0.189
    ],
    "quoten": null,
    "quoten_seit": null
@@ -124,9 +124,9 @@
     1
    ],
    "p": [
-    0.547,
-    0.215,
-    0.238
+    0.503,
+    0.229,
+    0.268
    ],
    "quoten": null,
    "quoten_seit": null
@@ -136,13 +136,13 @@
    "heim": "Freiburg",
    "gast": "S04",
    "tipp": [
-    2,
-    1
+    1,
+    0
    ],
    "p": [
-    0.646,
-    0.198,
-    0.157
+    0.588,
+    0.24,
+    0.172
    ],
    "quoten": null,
    "quoten_seit": null

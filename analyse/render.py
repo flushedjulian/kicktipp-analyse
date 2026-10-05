@@ -111,7 +111,7 @@ def _card(g, teams, idx):
 
     def team_block(team, tab, form, venue, venue_label, scorers):
         pos = f'{tab["platz"]}. Platz · {tab["pkt"]} Punkte · {tab["tore"]}:{tab["gegen"]} Tore' if tab else "Noch keine Spiele"
-        xg, xga = _avg(form, "xg"), _avg(form, "xga")
+        gf, ga = _avg(form, "tore"), _avg(form, "gegen")
         sc = ", ".join(f"{escape(n)} ({c})" for n, c in scorers) or "–"
         return f"""
         <div class="team-block">
@@ -119,7 +119,7 @@ def _card(g, teams, idx):
           <dl>
             <dt>Letzte 5</dt><dd>{_form_chips(form, teams)}</dd>
             <dt>{venue_label}</dt><dd>{_form_chips(venue, teams)}</dd>
-            <dt>xG letzte 5</dt><dd>{_fmt(xg)} für · {_fmt(xga)} gegen</dd>
+            <dt>Ø Tore letzte 5</dt><dd>{_fmt(gf)} für · {_fmt(ga)} gegen</dd>
             <dt>Torschützen</dt><dd>{sc}</dd>
           </dl>
         </div>"""
@@ -272,7 +272,8 @@ def page(season, matchday, games, teams, table, history, generated):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<title>Kicktipp · {matchday}. Spieltag</title>
+<title>Tipp-Analyse · {matchday}. Spieltag</title>
+<meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
 <style>{CSS}</style>
 </head>
@@ -303,11 +304,10 @@ def page(season, matchday, games, teams, table, history, generated):
   <div class="card about">
     <ul>
       <li>Angriffs- und Abwehrstärke jedes Teams aus dieser und der letzten Saison, neuere Spiele zählen mehr</li>
-      <li>Grundlage sind vor allem die xG-Werte (Qualität der Torchancen), nicht nur die Tore</li>
       <li>Wettquoten zählen zu 65 % mit (automatisch von football-data.co.uk, meist ab Do/Fr)</li>
       <li>Empfohlen wird der Tipp mit den meisten erwarteten Punkten (4/3/2)</li>
     </ul>
-    <p class="dim">Daten: OpenLigaDB, Understat, football-data.co.uk</p>
+    <p class="dim">Daten: OpenLigaDB, football-data.co.uk</p>
   </div>
 </main>
 {_script(games, season)}

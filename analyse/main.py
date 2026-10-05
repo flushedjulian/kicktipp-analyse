@@ -52,9 +52,8 @@ def team_form(matches, tid, n=5, venue=None):
         if venue == "heim" and not is_home or venue == "auswärts" and is_home:
             continue
         gf, ga = (m.home_goals, m.away_goals) if is_home else (m.away_goals, m.home_goals)
-        xf, xa = (m.home_xg, m.away_xg) if is_home else (m.away_xg, m.home_xg)
         games.append(dict(gegner=m.away_id if is_home else m.home_id, heim=is_home, tore=gf, gegen=ga,
-                          xg=xf, xga=xa, res="S" if gf > ga else "U" if gf == ga else "N", datum=m.kickoff_local))
+                          res="S" if gf > ga else "U" if gf == ga else "N", datum=m.kickoff_local))
         if len(games) == n:
             break
     return games
@@ -100,7 +99,6 @@ def main():
     teams = {}
     prev = data.load_season(season - 1, teams)
     cur = data.load_season(season, teams)
-    print("xG zugeordnet:", data.attach_understat_xg(season - 1, prev, teams), data.attach_understat_xg(season, cur, teams))
 
     md = pick_matchday(cur, now)
     if md is None:

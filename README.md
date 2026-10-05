@@ -4,8 +4,8 @@ Erstellt vor jedem Bundesliga-Spieltag automatisch eine Webseite mit Tipp-Empfeh
 
 ## So funktioniert's
 
-1. **Daten:** Ergebnisse der aktuellen und letzten Saison (OpenLigaDB), Expected Goals pro Spiel (Understat) und Wettquoten (football-data.co.uk, `fixtures.csv`, meist ab Donnerstag/Freitag verfügbar).
-2. **Teamstärke:** Gewichtete Poisson-Regression aus Angriff, Abwehr und Heimvorteil. Neuere Spiele zählen mehr (Halbwertszeit 150 Tage), xG zählt zu 80 %, echte Tore zu 20 %. Aufsteiger starten etwas schwächer.
+1. **Daten:** Ergebnisse der aktuellen und letzten Saison (OpenLigaDB) und Wettquoten (football-data.co.uk, `fixtures.csv`, meist ab Donnerstag/Freitag verfügbar).
+2. **Teamstärke:** Gewichtete Poisson-Regression aus Angriff, Abwehr und Heimvorteil auf Basis der Tore. Neuere Spiele zählen mehr (Halbwertszeit 150 Tage). Aufsteiger starten etwas schwächer.
 3. **Wettquoten:** Aus den 1X2-Durchschnittsquoten werden Torerwartungen zurückgerechnet und zu 65 % beigemischt. Einmal geholte Quoten werden in `data/predictions/` gespeichert, weil football-data.co.uk Spiele nach dem Anpfiff aus der Liste nimmt. Auf der Webseite lassen sich Quoten zusätzlich von Hand eintragen oder überschreiben (nur im Browser des Geräts gespeichert).
 4. **Bester Tipp:** Aus den Torerwartungen ergibt sich für jedes Ergebnis eine Wahrscheinlichkeit (Poisson mit Dixon-Coles-Korrektur). Empfohlen wird der Tipp mit den meisten erwarteten Kicktipp-Punkten.
 
@@ -23,13 +23,19 @@ python3 backtest.py --tune   # Parameter durchprobieren
 
 ## Backtest (Stand Oktober 2026)
 
-| Saison | Ø Punkte/Spiel | Tendenz richtig | „Immer 2:1 Heim“ |
-|---|---|---|---|
-| 2024/25 | 1,23 | 50 % | 0,97 |
-| 2025/26 | 1,40 | 55 % | 1,16 |
+Getippt wurde jeweils vor dem Spieltag, nur mit den bis dahin bekannten Ergebnissen.
 
-(nur eigenes Modell, ohne Wettquoten. Mit den Quoten von football-data.co.uk zu 65 % beigemischt: 394 bzw. 432 Punkte über die ganze Saison)
+| Saison | Spiele | Nur Modell | Mit Quoten (65 %) | „Immer 2:1 Heim“ |
+|---|---|---|---|---|
+| 2024/25 | 306 | 376 | 394 | 299 |
+| 2025/26 | 306 | 433 | 437 | 352 |
+
+Quoten für den Backtest: historische Durchschnittsquoten von football-data.co.uk.
 
 ## Einstellungen
 
 Alle Modell-Parameter stehen oben in [analyse/model.py](analyse/model.py). Das Punktesystem ist dort ebenfalls einstellbar (`POINTS_EXACT`, `POINTS_DIFF`, `POINTS_TENDENCY`).
+
+## Datenquellen
+
+Nur Quellen, die ausdrücklich zur freien Nutzung gedacht sind: [OpenLigaDB](https://www.openligadb.de) (Community-Projekt) und [football-data.co.uk](https://www.football-data.co.uk) („My data is free“). Die Seite ist per `noindex` von Suchmaschinen ausgenommen.

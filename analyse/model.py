@@ -5,8 +5,7 @@ from dataclasses import dataclass
 
 # Parameter – per backtest.py auf vergangenen Saisons abgestimmt
 HALF_LIFE_DAYS = 150     # nach so vielen Tagen zählt ein Spiel nur noch halb
-XG_WEIGHT = 0.8          # Mischung aus xG und echten Toren als "Leistung" eines Spiels
-PRIOR_STRENGTH = 4.0     # wie stark Teams zum Ausgangswert gezogen werden (Schutz bei wenig Daten)
+PRIOR_STRENGTH = 8.0     # wie stark Teams zum Ausgangswert gezogen werden (Schutz bei wenig Daten)
 PROMOTED_PRIOR = -0.20   # Aufsteiger starten etwas schwächer (log-Skala, Angriff und Abwehr)
 DC_RHO = -0.06           # Dixon-Coles-Korrektur: etwas mehr 0:0 / 1:1 als reiner Poisson
 MARKET_WEIGHT = 0.65     # Anteil der Wettquoten an der finalen Torerwartung (falls vorhanden)
@@ -29,12 +28,6 @@ class Ratings:
         return lh, la
 
 
-def _performance(goals, xg):
-    if xg is None:
-        return float(goals)
-    return XG_WEIGHT * xg + (1 - XG_WEIGHT) * goals
-
-
 def fit_ratings(matches, as_of, team_ids, promoted=()):
     """Gewichtete Poisson-Regression (log λ = mu + heim + angriff − abwehr) mit Zeitabklingen und Prior."""
     data = []
@@ -43,7 +36,7 @@ def fit_ratings(matches, as_of, team_ids, promoted=()):
             continue
         age = (as_of - m.kickoff_utc).total_seconds() / 86400
         w = 0.5 ** (age / HALF_LIFE_DAYS)
-        data.append((m.home_id, m.away_id, _performance(m.home_goals, m.home_xg), _performance(m.away_goals, m.away_xg), w))
+        data.append((m.home_id, m.away_id, float(m.home_goals), float(m.away_goals), w))
 
     team_ids = set(team_ids) | {d[0] for d in data} | {d[1] for d in data}  # inkl. Absteiger der Vorsaison
     prior = {t: (PROMOTED_PRIOR if t in promoted else 0.0) for t in team_ids}

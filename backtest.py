@@ -18,8 +18,6 @@ def load(season, cache={}):
         teams = {}
         prev = data.load_season(season - 1, teams)
         cur = data.load_season(season, teams)
-        data.attach_understat_xg(season - 1, prev, teams)
-        data.attach_understat_xg(season, cur, teams)
         cache[season] = (prev, cur)
     return cache[season]
 
@@ -66,7 +64,6 @@ def report():
 def tune():
     grid = {
         "HALF_LIFE_DAYS": [90, 150, 250],
-        "XG_WEIGHT": [0.0, 0.4, 0.6, 0.8],
         "PRIOR_STRENGTH": [2.0, 4.0, 8.0],
     }
     results = []
