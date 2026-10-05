@@ -50,7 +50,7 @@ h1{font-size:34px;font-weight:700;letter-spacing:-.02em;margin:2px 0 10px;line-h
 .meta{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .meta-date{font-size:15px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--border);
   box-shadow:var(--shadow);padding:6px 12px;border-radius:20px}
-.meta-stand{font-size:12px;color:var(--text2)}
+.meta-stand{font-size:12px;color:var(--text2);text-align:right;line-height:1.4}
 
 .sectionhead{font-size:13px;font-weight:600;color:var(--text2);margin:24px 4px 8px}
 
@@ -196,7 +196,7 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
     <h1>5. Spieltag</h1>
     <div class="meta">
       <span class="meta-date">9.–11. Oktober</span>
-      <span class="meta-stand">Stand 05.10., 14:08 Uhr</span>
+      <span class="meta-stand">Stand 05.10., 20:03 Uhr<br>Quoten folgen, meist Do/Fr</span>
     </div>
   </header>
 
@@ -206,8 +206,8 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
 
   
   <details class="card odds" id="quoten">
-    <summary><span class="odds-title">Quoten eintragen</span><span class="more">optional</span></summary>
-    <p class="odds-help">1&nbsp;=&nbsp;Heimsieg, X&nbsp;=&nbsp;Unentschieden, 2&nbsp;=&nbsp;Auswärtssieg. Tipp und Prozente passen sich an, sobald alle drei Quoten eines Spiels drin sind. Die Quoten bleiben auf diesem Gerät gespeichert.</p>
+    <summary><span class="odds-title">Quoten</span><span class="more">selbst eintragen</span></summary>
+    <p class="odds-help">1&nbsp;=&nbsp;Heimsieg, X&nbsp;=&nbsp;Unentschieden, 2&nbsp;=&nbsp;Auswärtssieg. Die Quoten werden automatisch eingerechnet, sobald sie verfügbar sind (meist ab Donnerstag oder Freitag) und stehen dann grau in den Feldern. Wer früher tippen will, kann sie hier selbst eintragen. Eigene Quoten bleiben auf diesem Gerät gespeichert.</p>
     <div class="odds-head"><span></span><span>1</span><span>X</span><span>2</span><span></span></div>
     <div class="odds-row" data-idx="0"><span class="odds-match">Dortmund – Bremen</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Dortmund"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Bremen"><span class="odds-state"></span></div><div class="odds-row" data-idx="1"><span class="odds-match">Hoffenheim – HSV</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Hoffenheim"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg HSV"><span class="odds-state"></span></div><div class="odds-row" data-idx="2"><span class="odds-match">Augsburg – Bayern</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Augsburg"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Bayern"><span class="odds-state"></span></div><div class="odds-row" data-idx="3"><span class="odds-match">Mainz – Leverkusen</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Mainz"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Leverkusen"><span class="odds-state"></span></div><div class="odds-row" data-idx="4"><span class="odds-match">Union Berlin – Elversberg</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Union Berlin"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Elversberg"><span class="odds-state"></span></div><div class="odds-row" data-idx="5"><span class="odds-match">Paderborn – Stuttgart</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Paderborn"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Stuttgart"><span class="odds-state"></span></div><div class="odds-row" data-idx="6"><span class="odds-match">Leipzig – Frankfurt</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Leipzig"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Frankfurt"><span class="odds-state"></span></div><div class="odds-row" data-idx="7"><span class="odds-match">Köln – Gladbach</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Köln"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg Gladbach"><span class="odds-state"></span></div><div class="odds-row" data-idx="8"><span class="odds-match">Freiburg – S04</span><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="1" placeholder="1" aria-label="Quote Sieg Freiburg"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="X" placeholder="X" aria-label="Quote Unentschieden"><input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="2" placeholder="2" aria-label="Quote Sieg S04"><span class="odds-state"></span></div>
     <button type="button" class="linkbtn js-clear">Alle Quoten löschen</button>
@@ -809,13 +809,13 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
     <ul>
       <li>Angriffs- und Abwehrstärke jedes Teams aus dieser und der letzten Saison, neuere Spiele zählen mehr</li>
       <li>Grundlage sind vor allem die xG-Werte (Qualität der Torchancen), nicht nur die Tore</li>
-      <li>Eingetragene Quoten zählen zu 65 % mit</li>
+      <li>Wettquoten zählen zu 65 % mit (automatisch von football-data.co.uk, meist ab Do/Fr)</li>
       <li>Empfohlen wird der Tipp mit den meisten erwarteten Punkten (4/3/2)</li>
     </ul>
-    <p class="dim">Daten: OpenLigaDB, Understat</p>
+    <p class="dim">Daten: OpenLigaDB, Understat, football-data.co.uk</p>
   </div>
 </main>
-<script>const GAMES=[{"id": 83192, "lam": [2.2646, 0.8202], "locked": false, "tip": [1, 0]}, {"id": 83194, "lam": [2.4265, 1.1095], "locked": false, "tip": [2, 1]}, {"id": 83196, "lam": [1.5506, 2.7538], "locked": false, "tip": [1, 2]}, {"id": 83197, "lam": [1.9043, 1.9222], "locked": false, "tip": [1, 2]}, {"id": 83198, "lam": [1.948, 1.4939], "locked": false, "tip": [2, 1]}, {"id": 83200, "lam": [1.2963, 1.8281], "locked": false, "tip": [1, 2]}, {"id": 83193, "lam": [2.5173, 1.315], "locked": false, "tip": [2, 1]}, {"id": 83199, "lam": [2.1744, 1.3962], "locked": false, "tip": [2, 1]}, {"id": 83195, "lam": [2.2977, 1.0619], "locked": false, "tip": [2, 1]}];const CFG={"rho": -0.06, "maxGoals": 10, "w": 0.65, "pts": [4, 3, 2], "season": 2026, "labels": {"hoch": "Klarer Favorit", "mittel": "Leichter Favorit", "niedrig": "Offenes Spiel"}};
+<script>const GAMES=[{"id": 83192, "lam": [2.2646, 0.8203], "auto": null, "locked": false, "tip": [1, 0]}, {"id": 83194, "lam": [2.4264, 1.1096], "auto": null, "locked": false, "tip": [2, 1]}, {"id": 83196, "lam": [1.5507, 2.7536], "auto": null, "locked": false, "tip": [1, 2]}, {"id": 83197, "lam": [1.9043, 1.9222], "auto": null, "locked": false, "tip": [1, 2]}, {"id": 83198, "lam": [1.9481, 1.4937], "auto": null, "locked": false, "tip": [2, 1]}, {"id": 83200, "lam": [1.2965, 1.8282], "auto": null, "locked": false, "tip": [1, 2]}, {"id": 83193, "lam": [2.5172, 1.315], "auto": null, "locked": false, "tip": [2, 1]}, {"id": 83199, "lam": [2.1743, 1.3963], "auto": null, "locked": false, "tip": [2, 1]}, {"id": 83195, "lam": [2.2977, 1.0619], "auto": null, "locked": false, "tip": [2, 1]}];const CFG={"rho": -0.06, "maxGoals": 10, "w": 0.65, "pts": [4, 3, 2], "season": 2026, "labels": {"hoch": "Klarer Favorit", "mittel": "Leichter Favorit", "niedrig": "Offenes Spiel"}};
 
 (function(){
 const fmt=(x,d)=>x.toFixed(d).replace('.',',');
@@ -924,8 +924,8 @@ function update(row, save){
     state.textContent='Tipp '+tipStr(tip); state.className='odds-state ok';
     modelState[idx]=false;
   }else{
-    if(!modelState[idx]){ render(idx, g.lam, false); modelState[idx]=true; }
-    state.textContent=bad?'Quoten müssen über 1 liegen, z. B. 1,45':''; state.className='odds-state'+(bad?' err':'');
+    if(!modelState[idx]){ render(idx, g.auto||g.lam, !!g.auto); modelState[idx]=true; }
+    state.textContent=bad?'Quoten müssen über 1 liegen, z. B. 1,45':(g.auto?'automatisch':''); state.className='odds-state'+(bad?' err':'');
   }
 }
 document.querySelectorAll('.odds-row').forEach(row=>{

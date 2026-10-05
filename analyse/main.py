@@ -118,9 +118,21 @@ def main():
     pred_file = PRED_DIR / f"{key}.json"
     old = {g["match_id"]: g for g in json.loads(pred_file.read_text())["spiele"]} if pred_file.exists() else {}
 
+    # Quoten: neu geholte haben Vorrang, sonst die zuletzt gespeicherten (football-data.co.uk
+    # nimmt Spiele nach dem Anpfiff aus der Liste)
+    odds = {mid: g["quoten"] for mid, g in old.items() if g.get("quoten")}
+    odds.update(data.load_fd_odds(fixtures, teams))
+
     games = []
     for m in fixtures:
-        lambdas = ratings.expected_goals(m.home_id, m.away_id)
+        model_l = ratings.expected_goals(m.home_id, m.away_id)
+        quotes = odds.get(m.match_id)
+        if quotes:
+            inv = [1 / q for q in quotes]
+            market_l = model.lambdas_from_market(inv[0] / sum(inv), inv[2] / sum(inv))
+            lambdas = model.blend(model_l, market_l)
+        else:
+            lambdas = model_l
         mat = model.score_matrix(*lambdas)
         ph, pd, pa = model.outcome_probs(mat)
         evs = model.expected_points(mat)
@@ -132,6 +144,7 @@ def main():
         games.append(dict(
             match=m, home=teams[m.home_id], away=teams[m.away_id],
             tip=tip, locked=locked, evs=evs[:4], probs=(ph, pd, pa), lambdas=lambdas, likely=likely,
+            model_l=model_l, quotes=quotes,
             tab_home=tab.get(m.home_id), tab_away=tab.get(m.away_id),
             form_home=team_form(all_matches, m.home_id), form_away=team_form(all_matches, m.away_id),
             venue_home=team_form(cur, m.home_id, venue="heim"), venue_away=team_form(cur, m.away_id, venue="auswärts"),
@@ -143,7 +156,7 @@ def main():
     pred_file.write_text(json.dumps(dict(
         saison=season, spieltag=md, erstellt=now.isoformat(timespec="minutes"),
         spiele=[dict(match_id=g["match"].match_id, heim=g["home"].short, gast=g["away"].short, tipp=list(g["tip"]),
-                     p=[round(x, 3) for x in g["probs"]]) for g in games],
+                     p=[round(x, 3) for x in g["probs"]], quoten=g["quotes"]) for g in games],
     ), ensure_ascii=False, indent=1))
 
     history = evaluate_history(load_predictions(), {m.match_id: m for m in cur + prev})

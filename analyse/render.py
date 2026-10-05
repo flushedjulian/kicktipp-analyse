@@ -133,7 +133,7 @@ def _card(g, teams, idx):
         <div class="center">
           <span class="cap">Tipp{lock}</span>
           <span class="score js-tip"><span class="js-tiptext">{_score(g["tip"])}</span></span>
-          <span class="mine js-mine" hidden>mit Quoten</span>
+          <span class="mine js-mine"{"" if g["quotes"] else " hidden"}>mit Quoten</span>
         </div>
         <div class="side">{_logo(away, 40)}<span class="tname">{escape(away.short)}</span></div>
       </div>
@@ -189,19 +189,34 @@ def _odds_panel(games):
         dis = " disabled" if g["locked"] else ""
         fields = "".join(
             f'<input type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="odd" data-k="{k}" '
-            f'placeholder="{k}" aria-label="Quote {lbl}"{dis}>'
-            for k, lbl in (("1", f"Sieg {h}"), ("X", "Unentschieden"), ("2", f"Sieg {a}"))
+            f'placeholder="{ph}" aria-label="Quote {lbl}"{dis}>'
+            for (k, lbl), ph in zip((("1", f"Sieg {h}"), ("X", "Unentschieden"), ("2", f"Sieg {a}")),
+                                    [_fmt(q, 2) for q in g["quotes"]] if g["quotes"] else ("1", "X", "2"))
         )
-        state = "angepfiffen" if g["locked"] else ""
+        state = "angepfiffen" if g["locked"] else "automatisch" if g["quotes"] else ""
         rows.append(f'<div class="odds-row" data-idx="{i}"><span class="odds-match">{h} – {a}</span>{fields}<span class="odds-state">{state}</span></div>')
     return f"""
   <details class="card odds" id="quoten">
-    <summary><span class="odds-title">Quoten eintragen</span><span class="more">optional</span></summary>
-    <p class="odds-help">1&nbsp;=&nbsp;Heimsieg, X&nbsp;=&nbsp;Unentschieden, 2&nbsp;=&nbsp;Auswärtssieg. Tipp und Prozente passen sich an, sobald alle drei Quoten eines Spiels drin sind. Die Quoten bleiben auf diesem Gerät gespeichert.</p>
+    <summary><span class="odds-title">Quoten</span><span class="more">{_odds_summary(games)}</span></summary>
+    <p class="odds-help">1&nbsp;=&nbsp;Heimsieg, X&nbsp;=&nbsp;Unentschieden, 2&nbsp;=&nbsp;Auswärtssieg. Die Quoten werden automatisch eingerechnet, sobald sie verfügbar sind (meist ab Donnerstag oder Freitag) und stehen dann grau in den Feldern. Wer früher tippen will, kann sie hier selbst eintragen. Eigene Quoten bleiben auf diesem Gerät gespeichert.</p>
     <div class="odds-head"><span></span><span>1</span><span>X</span><span>2</span><span></span></div>
     {"".join(rows)}
     <button type="button" class="linkbtn js-clear">Alle Quoten löschen</button>
   </details>"""
+
+
+def _odds_status(games):
+    n = sum(1 for g in games if g["quotes"])
+    if n == len(games):
+        return "Quoten eingerechnet"
+    if n:
+        return f"Quoten für {n} von {len(games)} Spielen"
+    return "Quoten folgen, meist Do/Fr"
+
+
+def _odds_summary(games):
+    n = sum(1 for g in games if g["quotes"])
+    return f"{n}/{len(games)} automatisch" if n else "selbst eintragen"
 
 
 def _history(history):
@@ -229,7 +244,8 @@ def _history(history):
 
 
 def _script(games, season):
-    data = [dict(id=g["match"].match_id, lam=[round(x, 4) for x in g["lambdas"]], locked=g["locked"], tip=list(g["tip"]))
+    data = [dict(id=g["match"].match_id, lam=[round(x, 4) for x in g["model_l"]],
+                 auto=[round(x, 4) for x in g["lambdas"]] if g["quotes"] else None, locked=g["locked"], tip=list(g["tip"]))
             for g in games]
     cfg = dict(rho=model.DC_RHO, maxGoals=model.MAX_GOALS, w=model.MARKET_WEIGHT,
                pts=[model.POINTS_EXACT, model.POINTS_DIFF, model.POINTS_TENDENCY], season=season, labels=CONFIDENCE)
@@ -258,7 +274,7 @@ def page(season, matchday, games, teams, table, history, generated):
     <h1>{matchday}. Spieltag</h1>
     <div class="meta">
       <span class="meta-date">{_date_range(first, last)}</span>
-      <span class="meta-stand">Stand {gen:%d.%m.}, {gen:%H:%M} Uhr</span>
+      <span class="meta-stand">Stand {gen:%d.%m.}, {gen:%H:%M} Uhr<br>{_odds_status(games)}</span>
     </div>
   </header>
 
@@ -279,10 +295,10 @@ def page(season, matchday, games, teams, table, history, generated):
     <ul>
       <li>Angriffs- und Abwehrstärke jedes Teams aus dieser und der letzten Saison, neuere Spiele zählen mehr</li>
       <li>Grundlage sind vor allem die xG-Werte (Qualität der Torchancen), nicht nur die Tore</li>
-      <li>Eingetragene Quoten zählen zu 65 % mit</li>
+      <li>Wettquoten zählen zu 65 % mit (automatisch von football-data.co.uk, meist ab Do/Fr)</li>
       <li>Empfohlen wird der Tipp mit den meisten erwarteten Punkten (4/3/2)</li>
     </ul>
-    <p class="dim">Daten: OpenLigaDB, Understat</p>
+    <p class="dim">Daten: OpenLigaDB, Understat, football-data.co.uk</p>
   </div>
 </main>
 {_script(games, season)}
@@ -334,7 +350,7 @@ h1{font-size:34px;font-weight:700;letter-spacing:-.02em;margin:2px 0 10px;line-h
 .meta{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .meta-date{font-size:15px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--border);
   box-shadow:var(--shadow);padding:6px 12px;border-radius:20px}
-.meta-stand{font-size:12px;color:var(--text2)}
+.meta-stand{font-size:12px;color:var(--text2);text-align:right;line-height:1.4}
 
 .sectionhead{font-size:13px;font-weight:600;color:var(--text2);margin:24px 4px 8px}
 
@@ -581,8 +597,8 @@ function update(row, save){
     state.textContent='Tipp '+tipStr(tip); state.className='odds-state ok';
     modelState[idx]=false;
   }else{
-    if(!modelState[idx]){ render(idx, g.lam, false); modelState[idx]=true; }
-    state.textContent=bad?'Quoten müssen über 1 liegen, z. B. 1,45':''; state.className='odds-state'+(bad?' err':'');
+    if(!modelState[idx]){ render(idx, g.auto||g.lam, !!g.auto); modelState[idx]=true; }
+    state.textContent=bad?'Quoten müssen über 1 liegen, z. B. 1,45':(g.auto?'automatisch':''); state.className='odds-state'+(bad?' err':'');
   }
 }
 document.querySelectorAll('.odds-row').forEach(row=>{

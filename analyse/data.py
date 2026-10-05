@@ -146,3 +146,50 @@ def _similar(a, b):
         return 1.0
     return difflib.SequenceMatcher(None, a, b).ratio()
 
+
+
+# ---------------------------------------------------------------- Wettquoten (football-data.co.uk)
+
+def load_fd_odds(fixtures, teams):
+    """Durchschnittsquoten (1X2) für anstehende Spiele aus football-data.co.uk/fixtures.csv.
+    Die Datei enthält immer nur die Spiele der nächsten Tage und wird etwa zweimal pro Woche aktualisiert.
+    Rückgabe: {match_id: [quote_1, quote_x, quote_2]}"""
+    import csv
+    import io
+
+    try:
+        req = urllib.request.Request("https://www.football-data.co.uk/fixtures.csv", headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=30, context=_SSL) as resp:
+            text = resp.read().decode("utf-8-sig", errors="replace")
+    except Exception as e:  # Quoten sind ein Bonus – ohne geht es auch
+        print(f"football-data.co.uk nicht erreichbar: {e}")
+        return {}
+
+    odds = {}
+    for r in csv.DictReader(io.StringIO(text)):
+        if r.get("Div") != "D1":
+            continue
+        try:
+            day = datetime.strptime(r["Date"], "%d/%m/%Y").date()
+        except (KeyError, ValueError):
+            continue
+        quotes = None
+        for prefix in ("Avg", "B365"):  # Durchschnitt aller Anbieter, sonst Bet365
+            try:
+                q = [float(r[f"{prefix}{k}"]) for k in ("H", "D", "A")]
+            except (KeyError, ValueError):
+                continue
+            if all(x > 1 for x in q):
+                quotes = q
+                break
+        if not quotes:
+            continue
+        candidates = [m for m in fixtures if abs((m.kickoff_local.date() - day).days) <= 1]
+        if not candidates:
+            continue
+        score = lambda m: _similar(r["HomeTeam"], teams[m.home_id].name) + _similar(r["AwayTeam"], teams[m.away_id].name)
+        best = max(candidates, key=score)
+        if score(best) >= 1.2:
+            odds[best.match_id] = quotes
+    print(f"Quoten von football-data.co.uk für {len(odds)}/{len(fixtures)} Spiele gefunden.")
+    return odds

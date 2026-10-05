@@ -3,6 +3,7 @@ name: Spieltag-Analyse
 on:
   schedule:
     - cron: "0 5 * * *"   # täglich ca. 7 Uhr deutscher Zeit
+    - cron: "0 16 * * *"  # und ca. 18 Uhr, damit neue Quoten vor dem Freitagsspiel drin sind
   workflow_dispatch:       # manuell über "Run workflow" startbar
 
 permissions:
