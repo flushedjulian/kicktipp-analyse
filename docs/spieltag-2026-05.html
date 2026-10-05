@@ -99,13 +99,15 @@ details[open]>summary .more::after{transform:rotate(-135deg);margin:0 2px -1px 7
 .bar{display:flex;height:6px;border-radius:99px;overflow:hidden;margin-top:14px;background:var(--sep);gap:2px}
 .seg{border-radius:99px}
 .seg.h{background:var(--accent)}.seg.d{background:var(--text3)}.seg.a{background:var(--blue)}
-.bar-legend{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+.bar-legend{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+.bar-legend span{white-space:nowrap}
 .bar-legend span:nth-child(1){color:var(--accent)}
 .bar-legend span:nth-child(2){color:var(--text2);font-weight:500}
 .bar-legend span:nth-child(3){color:var(--blue)}
 .card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
 .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid;white-space:nowrap}
-.alt{flex:1;text-align:center;font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alt{text-align:center;font-size:12px;color:var(--text2);margin:8px 0 0}
+.alt:empty{display:none}
 
 .details{border-top:.5px solid var(--sep);padding:4px 15px 15px}
 .details section{padding:12px 0;border-bottom:.5px solid var(--sep)}
@@ -196,7 +198,7 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
     <h1>5. Spieltag</h1>
     <div class="meta">
       <span class="meta-date">9.–11. Oktober</span>
-      <span class="meta-stand">Stand 05.10., 20:04 Uhr<br>Quoten folgen, meist Do/Fr</span>
+      <span class="meta-stand">Stand 05.10., 20:13 Uhr<br>Quoten folgen, meist Do/Fr</span>
     </div>
   </header>
 
@@ -231,10 +233,10 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
       <div class="js-bar"><div class="bar" role="img" aria-label="Heimsieg 70 %, Unentschieden 19 %, Auswärtssieg 12 %">
         <span class="seg h" style="width:69.5%"></span><span class="seg d" style="width:19.0%"></span><span class="seg a" style="width:11.5%"></span>
       </div>
-      <div class="bar-legend"><span>70 %</span><span>Remis 19 %</span><span>12 %</span></div></div>
+      <div class="bar-legend"><span>Dortmund 70 %</span><span>Remis 19 %</span><span>Bremen 12 %</span></div></div>
+      <p class="alt js-alt">Alternativ 2:0, 2:1</p>
       <div class="card-foot">
-        <span class="badge js-badge conf-hoch">Klarer Favorit</span>
-        <span class="alt js-alt">Alternativ 2:0, 2:1</span>
+        <span class="badge js-badge conf-hoch">Dortmund klarer Favorit</span>
         <span class="more">Details</span>
       </div>
     </summary>
@@ -296,10 +298,10 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
       <div class="js-bar"><div class="bar" role="img" aria-label="Heimsieg 66 %, Unentschieden 19 %, Auswärtssieg 15 %">
         <span class="seg h" style="width:65.9%"></span><span class="seg d" style="width:18.9%"></span><span class="seg a" style="width:15.3%"></span>
       </div>
-      <div class="bar-legend"><span>66 %</span><span>Remis 19 %</span><span>15 %</span></div></div>
+      <div class="bar-legend"><span>Hoffenheim 66 %</span><span>Remis 19 %</span><span>HSV 15 %</span></div></div>
+      <p class="alt js-alt">Alternativ 1:0</p>
       <div class="card-foot">
-        <span class="badge js-badge conf-hoch">Klarer Favorit</span>
-        <span class="alt js-alt">Alternativ 1:0</span>
+        <span class="badge js-badge conf-hoch">Hoffenheim klarer Favorit</span>
         <span class="more">Details</span>
       </div>
     </summary>
@@ -361,10 +363,10 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
       <div class="js-bar"><div class="bar" role="img" aria-label="Heimsieg 20 %, Unentschieden 18 %, Auswärtssieg 63 %">
         <span class="seg h" style="width:19.6%"></span><span class="seg d" style="width:17.8%"></span><span class="seg a" style="width:62.6%"></span>
       </div>
-      <div class="bar-legend"><span>20 %</span><span>Remis 18 %</span><span>63 %</span></div></div>
+      <div class="bar-legend"><span>Augsburg 20 %</span><span>Remis 18 %</span><span>Bayern 63 %</span></div></div>
+      <p class="alt js-alt">Alternativ 2:3, 1:3</p>
       <div class="card-foot">
-        <span class="badge js-badge conf-hoch">Klarer Favorit</span>
-        <span class="alt js-alt">Alternativ 2:3, 1:3</span>
+        <span class="badge js-badge conf-hoch">Bayern klarer Favorit</span>
         <span class="more">Details</span>
       </div>
     </summary>
@@ -426,10 +428,10 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
       <div class="js-bar"><div class="bar" role="img" aria-label="Heimsieg 39 %, Unentschieden 22 %, Auswärtssieg 39 %">
         <span class="seg h" style="width:38.6%"></span><span class="seg d" style="width:22.2%"></span><span class="seg a" style="width:39.3%"></span>
       </div>
-      <div class="bar-legend"><span>39 %</span><span>Remis 22 %</span><span>39 %</span></div></div>
+      <div class="bar-legend"><span>Mainz 39 %</span><span>Remis 22 %</span><span>Leverkusen 39 %</span></div></div>
+      <p class="alt js-alt">Alternativ 2:1, 2:3</p>
       <div class="card-foot">
         <span class="badge js-badge conf-niedrig">Offenes Spiel</span>
-        <span class="alt js-alt">Alternativ 2:1, 2:3</span>
         <span class="more">Details</span>
       </div>
     </summary>
@@ -491,10 +493,10 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
       <div class="js-bar"><div class="bar" role="img" aria-label="Heimsieg 48 %, Unentschieden 23 %, Auswärtssieg 29 %">
         <span class="seg h" style="width:47.8%"></span><span class="seg d" style="width:23.0%"></span><span class="seg a" style="width:29.2%"></span>
       </div>
-      <div class="bar-legend"><span>48 %</span><span>Remis 23 %</span><span>29 %</span></div></div>
+      <div class="bar-legend"><span>Union Berlin 48 %</span><span>Remis 23 %</span><span>Elversberg 29 %</span></div></div>
+      <p class="alt js-alt"></p>
       <div class="card-foot">
-        <span class="badge js-badge conf-mittel">Leichter Favorit</span>
-        <span class="alt js-alt"></span>
+        <span class="badge js-badge conf-mittel">Union Berlin leichter Favorit</span>
         <span class="more">Details</span>
       </div>
     </summary>
@@ -556,10 +558,10 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
       <div class="js-bar"><div class="bar" role="img" aria-label="Heimsieg 27 %, Unentschieden 24 %, Auswärtssieg 49 %">
         <span class="seg h" style="width:26.6%"></span><span class="seg d" style="width:24.1%"></span><span class="seg a" style="width:49.3%"></span>
       </div>
-      <div class="bar-legend"><span>27 %</span><span>Remis 24 %</span><span>49 %</span></div></div>
+      <div class="bar-legend"><span>Paderborn 27 %</span><span>Remis 24 %</span><span>Stuttgart 49 %</span></div></div>
+      <p class="alt js-alt">Alternativ 0:1</p>
       <div class="card-foot">
-        <span class="badge js-badge conf-mittel">Leichter Favorit</span>
-        <span class="alt js-alt">Alternativ 0:1</span>
+        <span class="badge js-badge conf-mittel">Stuttgart leichter Favorit</span>
         <span class="more">Details</span>
       </div>
     </summary>
@@ -621,10 +623,10 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
       <div class="js-bar"><div class="bar" role="img" aria-label="Heimsieg 63 %, Unentschieden 19 %, Auswärtssieg 18 %">
         <span class="seg h" style="width:63.1%"></span><span class="seg d" style="width:18.8%"></span><span class="seg a" style="width:18.0%"></span>
       </div>
-      <div class="bar-legend"><span>63 %</span><span>Remis 19 %</span><span>18 %</span></div></div>
+      <div class="bar-legend"><span>Leipzig 63 %</span><span>Remis 19 %</span><span>Frankfurt 18 %</span></div></div>
+      <p class="alt js-alt"></p>
       <div class="card-foot">
-        <span class="badge js-badge conf-hoch">Klarer Favorit</span>
-        <span class="alt js-alt"></span>
+        <span class="badge js-badge conf-hoch">Leipzig klarer Favorit</span>
         <span class="more">Details</span>
       </div>
     </summary>
@@ -686,10 +688,10 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
       <div class="js-bar"><div class="bar" role="img" aria-label="Heimsieg 55 %, Unentschieden 22 %, Auswärtssieg 24 %">
         <span class="seg h" style="width:54.7%"></span><span class="seg d" style="width:21.5%"></span><span class="seg a" style="width:23.8%"></span>
       </div>
-      <div class="bar-legend"><span>55 %</span><span>Remis 22 %</span><span>24 %</span></div></div>
+      <div class="bar-legend"><span>Köln 55 %</span><span>Remis 22 %</span><span>Gladbach 24 %</span></div></div>
+      <p class="alt js-alt"></p>
       <div class="card-foot">
-        <span class="badge js-badge conf-mittel">Leichter Favorit</span>
-        <span class="alt js-alt"></span>
+        <span class="badge js-badge conf-mittel">Köln leichter Favorit</span>
         <span class="more">Details</span>
       </div>
     </summary>
@@ -751,10 +753,10 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
       <div class="js-bar"><div class="bar" role="img" aria-label="Heimsieg 65 %, Unentschieden 20 %, Auswärtssieg 16 %">
         <span class="seg h" style="width:64.6%"></span><span class="seg d" style="width:19.8%"></span><span class="seg a" style="width:15.7%"></span>
       </div>
-      <div class="bar-legend"><span>65 %</span><span>Remis 20 %</span><span>16 %</span></div></div>
+      <div class="bar-legend"><span>Freiburg 65 %</span><span>Remis 20 %</span><span>S04 16 %</span></div></div>
+      <p class="alt js-alt">Alternativ 1:0</p>
       <div class="card-foot">
-        <span class="badge js-badge conf-hoch">Klarer Favorit</span>
-        <span class="alt js-alt">Alternativ 1:0</span>
+        <span class="badge js-badge conf-hoch">Freiburg klarer Favorit</span>
         <span class="more">Details</span>
       </div>
     </summary>
@@ -815,7 +817,7 @@ table.ev{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;f
     <p class="dim">Daten: OpenLigaDB, Understat, football-data.co.uk</p>
   </div>
 </main>
-<script>const GAMES=[{"id": 83192, "lam": [2.2646, 0.8203], "auto": null, "locked": false, "tip": [1, 0]}, {"id": 83194, "lam": [2.4264, 1.1096], "auto": null, "locked": false, "tip": [2, 1]}, {"id": 83196, "lam": [1.5507, 2.7536], "auto": null, "locked": false, "tip": [1, 2]}, {"id": 83197, "lam": [1.9043, 1.9222], "auto": null, "locked": false, "tip": [1, 2]}, {"id": 83198, "lam": [1.9481, 1.4937], "auto": null, "locked": false, "tip": [2, 1]}, {"id": 83200, "lam": [1.2965, 1.8282], "auto": null, "locked": false, "tip": [1, 2]}, {"id": 83193, "lam": [2.5172, 1.315], "auto": null, "locked": false, "tip": [2, 1]}, {"id": 83199, "lam": [2.1743, 1.3963], "auto": null, "locked": false, "tip": [2, 1]}, {"id": 83195, "lam": [2.2977, 1.0619], "auto": null, "locked": false, "tip": [2, 1]}];const CFG={"rho": -0.06, "maxGoals": 10, "w": 0.65, "pts": [4, 3, 2], "season": 2026, "labels": {"hoch": "Klarer Favorit", "mittel": "Leichter Favorit", "niedrig": "Offenes Spiel"}};
+<script>const GAMES=[{"id": 83192, "lam": [2.2646, 0.8203], "auto": null, "locked": false, "tip": [1, 0], "home": "Dortmund", "away": "Bremen"}, {"id": 83194, "lam": [2.4264, 1.1096], "auto": null, "locked": false, "tip": [2, 1], "home": "Hoffenheim", "away": "HSV"}, {"id": 83196, "lam": [1.5507, 2.7536], "auto": null, "locked": false, "tip": [1, 2], "home": "Augsburg", "away": "Bayern"}, {"id": 83197, "lam": [1.9043, 1.9222], "auto": null, "locked": false, "tip": [1, 2], "home": "Mainz", "away": "Leverkusen"}, {"id": 83198, "lam": [1.9481, 1.4937], "auto": null, "locked": false, "tip": [2, 1], "home": "Union Berlin", "away": "Elversberg"}, {"id": 83200, "lam": [1.2965, 1.8282], "auto": null, "locked": false, "tip": [1, 2], "home": "Paderborn", "away": "Stuttgart"}, {"id": 83193, "lam": [2.5172, 1.315], "auto": null, "locked": false, "tip": [2, 1], "home": "Leipzig", "away": "Frankfurt"}, {"id": 83199, "lam": [2.1743, 1.3963], "auto": null, "locked": false, "tip": [2, 1], "home": "Köln", "away": "Gladbach"}, {"id": 83195, "lam": [2.2977, 1.0619], "auto": null, "locked": false, "tip": [2, 1], "home": "Freiburg", "away": "S04"}];const CFG={"rho": -0.06, "maxGoals": 10, "w": 0.65, "pts": [4, 3, 2], "season": 2026, "labels": {"hoch": "Klarer Favorit", "mittel": "Leichter Favorit", "niedrig": "Offenes Spiel"}};
 
 (function(){
 const fmt=(x,d)=>x.toFixed(d).replace('.',',');
@@ -866,6 +868,11 @@ function lambdasFromMarket(pH,pA){
   return best;
 }
 function blend(mod,mkt){ return mod.map((v,i)=>Math.exp((1-CFG.w)*Math.log(v)+CFG.w*Math.log(mkt[i]))); }
+function esc(x){ const d=document.createElement('div'); d.textContent=x; return d.innerHTML; }
+function badgeText(g,level,t){
+  if(level==='niedrig'||t[0]===t[1]) return 'Offenes Spiel';
+  return (t[0]>t[1]?g.home:g.away)+(level==='hoch'?' klarer':' leichter')+' Favorit';
+}
 function confidence(p,t){
   const q=t[0]>t[1]?p[0]:t[0]===t[1]?p[1]:p[2];
   const level=q>=0.62?'hoch':q>=0.45?'mittel':'niedrig';
@@ -879,11 +886,11 @@ function render(idx, lam, mine){
   const tip=g.locked?g.tip:evs[0][0];
   const [level,label]=confidence(p,tip);
   card.querySelector('.js-tiptext').innerHTML=scoreHtml(tip);
-  const badge=card.querySelector('.js-badge'); setConf(badge,level); badge.textContent=label;
+  const badge=card.querySelector('.js-badge'); setConf(badge,level); badge.textContent=badgeText(g,level,tip);
   card.querySelector('.js-bar').innerHTML=
     '<div class="bar" role="img" aria-label="Heimsieg '+pct(p[0])+', Unentschieden '+pct(p[1])+', Auswärtssieg '+pct(p[2])+'">'+
     '<span class="seg h" style="width:'+(p[0]*100).toFixed(1)+'%"></span><span class="seg d" style="width:'+(p[1]*100).toFixed(1)+'%"></span><span class="seg a" style="width:'+(p[2]*100).toFixed(1)+'%"></span></div>'+
-    '<div class="bar-legend"><span>'+pct(p[0])+'</span><span>Remis '+pct(p[1])+'</span><span>'+pct(p[2])+'</span></div>';
+    '<div class="bar-legend"><span>'+esc(g.home)+' '+pct(p[0])+'</span><span>Remis '+pct(p[1])+'</span><span>'+esc(g.away)+' '+pct(p[2])+'</span></div>';
   const alts=g.locked?[]:evs.slice(1).filter(e=>evs[0][1]-e[1]<0.03).map(e=>tipStr(e[0]));
   card.querySelector('.js-alt').textContent=alts.length?'Alternativ '+alts.join(', '):'';
   card.querySelector('.js-mine').hidden=!mine;

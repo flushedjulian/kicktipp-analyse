@@ -55,6 +55,14 @@ def _confidence(g):
     return level, CONFIDENCE[level]
 
 
+def _badge_text(g, level):
+    th, ta = g["tip"]
+    if level == "niedrig" or th == ta:
+        return "Offenes Spiel"
+    team = g["home"].short if th > ta else g["away"].short
+    return f"{team} {'klarer' if level == 'hoch' else 'leichter'} Favorit"
+
+
 def _fmt(x, d=1):
     return "–" if x is None else f"{x:.{d}f}".replace(".", ",")
 
@@ -75,12 +83,12 @@ def _form_chips(form, teams):
     return "".join(out)
 
 
-def _bar(probs):
+def _bar(probs, home, away):
     ph, pd, pa = probs
     return f"""<div class="bar" role="img" aria-label="Heimsieg {_pct(ph)}, Unentschieden {_pct(pd)}, Auswärtssieg {_pct(pa)}">
         <span class="seg h" style="width:{ph * 100:.1f}%"></span><span class="seg d" style="width:{pd * 100:.1f}%"></span><span class="seg a" style="width:{pa * 100:.1f}%"></span>
       </div>
-      <div class="bar-legend"><span>{_pct(ph)}</span><span>Remis {_pct(pd)}</span><span>{_pct(pa)}</span></div>"""
+      <div class="bar-legend"><span>{escape(home.short)} {_pct(ph)}</span><span>Remis {_pct(pd)}</span><span>{escape(away.short)} {_pct(pa)}</span></div>"""
 
 
 def _alt_text(g):
@@ -137,10 +145,10 @@ def _card(g, teams, idx):
         </div>
         <div class="side">{_logo(away, 40)}<span class="tname">{escape(away.short)}</span></div>
       </div>
-      <div class="js-bar">{_bar(g["probs"])}</div>
+      <div class="js-bar">{_bar(g["probs"], home, away)}</div>
+      <p class="alt js-alt">{_alt_text(g)}</p>
       <div class="card-foot">
-        <span class="badge js-badge conf-{level}">{label}</span>
-        <span class="alt js-alt">{_alt_text(g)}</span>
+        <span class="badge js-badge conf-{level}">{escape(_badge_text(g, level))}</span>
         <span class="more">Details</span>
       </div>
     </summary>
@@ -245,7 +253,8 @@ def _history(history):
 
 def _script(games, season):
     data = [dict(id=g["match"].match_id, lam=[round(x, 4) for x in g["model_l"]],
-                 auto=[round(x, 4) for x in g["lambdas"]] if g["quotes"] else None, locked=g["locked"], tip=list(g["tip"]))
+                 auto=[round(x, 4) for x in g["lambdas"]] if g["quotes"] else None, locked=g["locked"], tip=list(g["tip"]),
+                 home=g["home"].short, away=g["away"].short)
             for g in games]
     cfg = dict(rho=model.DC_RHO, maxGoals=model.MAX_GOALS, w=model.MARKET_WEIGHT,
                pts=[model.POINTS_EXACT, model.POINTS_DIFF, model.POINTS_TENDENCY], season=season, labels=CONFIDENCE)
@@ -399,13 +408,15 @@ details[open]>summary .more::after{transform:rotate(-135deg);margin:0 2px -1px 7
 .bar{display:flex;height:6px;border-radius:99px;overflow:hidden;margin-top:14px;background:var(--sep);gap:2px}
 .seg{border-radius:99px}
 .seg.h{background:var(--accent)}.seg.d{background:var(--text3)}.seg.a{background:var(--blue)}
-.bar-legend{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+.bar-legend{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+.bar-legend span{white-space:nowrap}
 .bar-legend span:nth-child(1){color:var(--accent)}
 .bar-legend span:nth-child(2){color:var(--text2);font-weight:500}
 .bar-legend span:nth-child(3){color:var(--blue)}
 .card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
 .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid;white-space:nowrap}
-.alt{flex:1;text-align:center;font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alt{text-align:center;font-size:12px;color:var(--text2);margin:8px 0 0}
+.alt:empty{display:none}
 
 .details{border-top:.5px solid var(--sep);padding:4px 15px 15px}
 .details section{padding:12px 0;border-bottom:.5px solid var(--sep)}
@@ -539,6 +550,11 @@ function lambdasFromMarket(pH,pA){
   return best;
 }
 function blend(mod,mkt){ return mod.map((v,i)=>Math.exp((1-CFG.w)*Math.log(v)+CFG.w*Math.log(mkt[i]))); }
+function esc(x){ const d=document.createElement('div'); d.textContent=x; return d.innerHTML; }
+function badgeText(g,level,t){
+  if(level==='niedrig'||t[0]===t[1]) return 'Offenes Spiel';
+  return (t[0]>t[1]?g.home:g.away)+(level==='hoch'?' klarer':' leichter')+' Favorit';
+}
 function confidence(p,t){
   const q=t[0]>t[1]?p[0]:t[0]===t[1]?p[1]:p[2];
   const level=q>=0.62?'hoch':q>=0.45?'mittel':'niedrig';
@@ -552,11 +568,11 @@ function render(idx, lam, mine){
   const tip=g.locked?g.tip:evs[0][0];
   const [level,label]=confidence(p,tip);
   card.querySelector('.js-tiptext').innerHTML=scoreHtml(tip);
-  const badge=card.querySelector('.js-badge'); setConf(badge,level); badge.textContent=label;
+  const badge=card.querySelector('.js-badge'); setConf(badge,level); badge.textContent=badgeText(g,level,tip);
   card.querySelector('.js-bar').innerHTML=
     '<div class="bar" role="img" aria-label="Heimsieg '+pct(p[0])+', Unentschieden '+pct(p[1])+', Auswärtssieg '+pct(p[2])+'">'+
     '<span class="seg h" style="width:'+(p[0]*100).toFixed(1)+'%"></span><span class="seg d" style="width:'+(p[1]*100).toFixed(1)+'%"></span><span class="seg a" style="width:'+(p[2]*100).toFixed(1)+'%"></span></div>'+
-    '<div class="bar-legend"><span>'+pct(p[0])+'</span><span>Remis '+pct(p[1])+'</span><span>'+pct(p[2])+'</span></div>';
+    '<div class="bar-legend"><span>'+esc(g.home)+' '+pct(p[0])+'</span><span>Remis '+pct(p[1])+'</span><span>'+esc(g.away)+' '+pct(p[2])+'</span></div>';
   const alts=g.locked?[]:evs.slice(1).filter(e=>evs[0][1]-e[1]<0.03).map(e=>tipStr(e[0]));
   card.querySelector('.js-alt').textContent=alts.length?'Alternativ '+alts.join(', '):'';
   card.querySelector('.js-mine').hidden=!mine;
