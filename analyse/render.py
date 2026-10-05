@@ -206,7 +206,7 @@ def _odds_panel(games):
     return f"""
   <details class="card odds" id="quoten">
     <summary><span class="odds-title">Quoten</span><span class="more">{_odds_summary(games)}</span></summary>
-    <p class="odds-help">1&nbsp;=&nbsp;Heimsieg, X&nbsp;=&nbsp;Unentschieden, 2&nbsp;=&nbsp;Auswärtssieg. Die Quoten werden automatisch eingerechnet, sobald sie verfügbar sind (meist ab Donnerstag oder Freitag) und stehen dann grau in den Feldern. Wer früher tippen will, kann sie hier selbst eintragen. Eigene Quoten bleiben auf diesem Gerät gespeichert.</p>
+    <p class="odds-help">1&nbsp;=&nbsp;Heimsieg, X&nbsp;=&nbsp;Unentschieden, 2&nbsp;=&nbsp;Auswärtssieg. Die Quoten werden automatisch eingerechnet, sobald sie verfügbar sind (meist ab Donnerstag oder Freitag) und stehen dann grau in den Feldern. Wer früher tippen will, kann sie hier selbst eintragen. Es gelten immer die neuesten Quoten: Kommen später automatische dazu, ersetzen sie ältere eigene Einträge.</p>
     <div class="odds-head"><span></span><span>1</span><span>X</span><span>2</span><span></span></div>
     {"".join(rows)}
     <button type="button" class="linkbtn js-clear">Alle Quoten löschen</button>
@@ -254,7 +254,7 @@ def _history(history):
 def _script(games, season):
     data = [dict(id=g["match"].match_id, lam=[round(x, 4) for x in g["model_l"]],
                  auto=[round(x, 4) for x in g["lambdas"]] if g["quotes"] else None, locked=g["locked"], tip=list(g["tip"]),
-                 home=g["home"].short, away=g["away"].short)
+                 home=g["home"].short, away=g["away"].short, autoSince=g["quotes_since"])
             for g in games]
     cfg = dict(rho=model.DC_RHO, maxGoals=model.MAX_GOALS, w=model.MARKET_WEIGHT,
                pts=[model.POINTS_EXACT, model.POINTS_DIFF, model.POINTS_TENDENCY], season=season, labels=CONFIDENCE)
@@ -605,7 +605,7 @@ function update(row, save){
   const bad=vals.some(v=>Number.isNaN(v));
   inputs.forEach((inp,k)=>inp.classList.toggle('bad',Number.isNaN(vals[k])));
   const complete=vals.every(v=>typeof v==='number'&&!Number.isNaN(v));
-  if(save) store.set(g.id, inputs.some(i=>i.value.trim())?inputs.map(i=>i.value.trim()):null);
+  if(save) store.set(g.id, inputs.some(i=>i.value.trim())?{v:inputs.map(i=>i.value.trim()),t:Date.now()}:null);
   if(complete){
     const inv=vals.map(v=>1/v), s=inv[0]+inv[1]+inv[2];
     const lam=blend(g.lam, lambdasFromMarket(inv[0]/s, inv[2]/s));
@@ -619,7 +619,13 @@ function update(row, save){
 }
 document.querySelectorAll('.odds-row').forEach(row=>{
   const g=GAMES[+row.dataset.idx], saved=store.get(g.id), inputs=row.querySelectorAll('.odd');
-  if(saved&&!g.locked){ inputs.forEach((inp,k)=>inp.value=saved[k]||''); update(row,false); }
+  if(saved&&!g.locked){
+    const vals=Array.isArray(saved)?saved:saved.v, t=Array.isArray(saved)?0:saved.t;
+    if(g.auto&&g.autoSince&&t<Date.parse(g.autoSince)){
+      store.set(g.id,null);   // automatische Quoten sind neuer als die eigenen
+      const st=row.querySelector('.odds-state'); st.textContent='neue Quoten übernommen'; st.className='odds-state ok';
+    }else{ inputs.forEach((inp,k)=>inp.value=vals[k]||''); update(row,false); }
+  }
   inputs.forEach(inp=>inp.addEventListener('input',()=>update(row,true)));
 });
 document.querySelector('.js-clear').addEventListener('click',()=>{

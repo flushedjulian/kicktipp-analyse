@@ -121,7 +121,11 @@ def main():
     # Quoten: neu geholte haben Vorrang, sonst die zuletzt gespeicherten (football-data.co.uk
     # nimmt Spiele nach dem Anpfiff aus der Liste)
     odds = {mid: g["quoten"] for mid, g in old.items() if g.get("quoten")}
-    odds.update(data.load_fd_odds(fixtures, teams))
+    odds_since = {mid: g.get("quoten_seit") for mid, g in old.items() if g.get("quoten")}
+    for mid, q in data.load_fd_odds(fixtures, teams).items():
+        if q != odds.get(mid) or not odds_since.get(mid):  # neu oder geändert → Zeitpunkt merken
+            odds_since[mid] = now.isoformat(timespec="minutes")
+        odds[mid] = q
 
     games = []
     for m in fixtures:
@@ -144,7 +148,7 @@ def main():
         games.append(dict(
             match=m, home=teams[m.home_id], away=teams[m.away_id],
             tip=tip, locked=locked, evs=evs[:4], probs=(ph, pd, pa), lambdas=lambdas, likely=likely,
-            model_l=model_l, quotes=quotes,
+            model_l=model_l, quotes=quotes, quotes_since=odds_since.get(m.match_id) if quotes else None,
             tab_home=tab.get(m.home_id), tab_away=tab.get(m.away_id),
             form_home=team_form(all_matches, m.home_id), form_away=team_form(all_matches, m.away_id),
             venue_home=team_form(cur, m.home_id, venue="heim"), venue_away=team_form(cur, m.away_id, venue="auswärts"),
@@ -156,7 +160,7 @@ def main():
     pred_file.write_text(json.dumps(dict(
         saison=season, spieltag=md, erstellt=now.isoformat(timespec="minutes"),
         spiele=[dict(match_id=g["match"].match_id, heim=g["home"].short, gast=g["away"].short, tipp=list(g["tip"]),
-                     p=[round(x, 3) for x in g["probs"]], quoten=g["quotes"]) for g in games],
+                     p=[round(x, 3) for x in g["probs"]], quoten=g["quotes"], quoten_seit=g["quotes_since"]) for g in games],
     ), ensure_ascii=False, indent=1))
 
     history = evaluate_history(load_predictions(), {m.match_id: m for m in cur + prev})

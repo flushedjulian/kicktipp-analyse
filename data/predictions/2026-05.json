@@ -1,7 +1,7 @@
 {
  "saison": 2026,
  "spieltag": 5,
- "erstellt": "2026-10-05T18:13+00:00",
+ "erstellt": "2026-10-05T18:26+00:00",
  "spiele": [
   {
    "match_id": 83192,
@@ -16,7 +16,8 @@
     0.19,
     0.115
    ],
-   "quoten": null
+   "quoten": null,
+   "quoten_seit": null
   },
   {
    "match_id": 83194,
@@ -31,7 +32,8 @@
     0.189,
     0.153
    ],
-   "quoten": null
+   "quoten": null,
+   "quoten_seit": null
   },
   {
    "match_id": 83196,
@@ -46,7 +48,8 @@
     0.178,
     0.626
    ],
-   "quoten": null
+   "quoten": null,
+   "quoten_seit": null
   },
   {
    "match_id": 83197,
@@ -61,7 +64,8 @@
     0.222,
     0.393
    ],
-   "quoten": null
+   "quoten": null,
+   "quoten_seit": null
   },
   {
    "match_id": 83198,
@@ -76,7 +80,8 @@
     0.23,
     0.292
    ],
-   "quoten": null
+   "quoten": null,
+   "quoten_seit": null
   },
   {
    "match_id": 83200,
@@ -91,7 +96,8 @@
     0.241,
     0.493
    ],
-   "quoten": null
+   "quoten": null,
+   "quoten_seit": null
   },
   {
    "match_id": 83193,
@@ -106,7 +112,8 @@
     0.188,
     0.18
    ],
-   "quoten": null
+   "quoten": null,
+   "quoten_seit": null
   },
   {
    "match_id": 83199,
@@ -121,7 +128,8 @@
     0.215,
     0.238
    ],
-   "quoten": null
+   "quoten": null,
+   "quoten_seit": null
   },
   {
    "match_id": 83195,
@@ -136,7 +144,8 @@
     0.198,
     0.157
    ],
-   "quoten": null
+   "quoten": null,
+   "quoten_seit": null
   }
  ]
 }
