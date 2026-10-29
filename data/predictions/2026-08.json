@@ -1,7 +1,7 @@
 {
  "saison": 2026,
  "spieltag": 8,
- "erstellt": "2026-10-29T11:22+00:00",
+ "erstellt": "2026-10-29T20:58+00:00",
  "spiele": [
   {
    "match_id": 83227,
@@ -110,7 +110,7 @@
    "p": [
     0.658,
     0.189,
-    0.153
+    0.154
    ],
    "quoten": null,
    "quoten_seit": null
