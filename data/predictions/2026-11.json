@@ -1,0 +1,151 @@
+{
+ "saison": 2026,
+ "spieltag": 11,
+ "erstellt": "2026-11-21T21:31+00:00",
+ "spiele": [
+  {
+   "match_id": 83253,
+   "heim": "Bremen",
+   "gast": "Gladbach",
+   "tipp": [
+    2,
+    1
+   ],
+   "p": [
+    0.565,
+    0.23,
+    0.205
+   ],
+   "quoten": null,
+   "quoten_seit": null
+  },
+  {
+   "match_id": 83250,
+   "heim": "Mainz",
+   "gast": "Union Berlin",
+   "tipp": [
+    2,
+    1
+   ],
+   "p": [
+    0.612,
+    0.209,
+    0.179
+   ],
+   "quoten": null,
+   "quoten_seit": null
+  },
+  {
+   "match_id": 83251,
+   "heim": "HSV",
+   "gast": "Bayern",
+   "tipp": [
+    1,
+    2
+   ],
+   "p": [
+    0.137,
+    0.169,
+    0.695
+   ],
+   "quoten": null,
+   "quoten_seit": null
+  },
+  {
+   "match_id": 83252,
+   "heim": "Köln",
+   "gast": "Elversberg",
+   "tipp": [
+    2,
+    1
+   ],
+   "p": [
+    0.468,
+    0.25,
+    0.283
+   ],
+   "quoten": null,
+   "quoten_seit": null
+  },
+  {
+   "match_id": 83254,
+   "heim": "Paderborn",
+   "gast": "S04",
+   "tipp": [
+    0,
+    0
+   ],
+   "p": [
+    0.389,
+    0.349,
+    0.262
+   ],
+   "quoten": null,
+   "quoten_seit": null
+  },
+  {
+   "match_id": 83247,
+   "heim": "Stuttgart",
+   "gast": "Frankfurt",
+   "tipp": [
+    2,
+    1
+   ],
+   "p": [
+    0.622,
+    0.197,
+    0.18
+   ],
+   "quoten": null,
+   "quoten_seit": null
+  },
+  {
+   "match_id": 83249,
+   "heim": "Freiburg",
+   "gast": "Leipzig",
+   "tipp": [
+    2,
+    1
+   ],
+   "p": [
+    0.395,
+    0.234,
+    0.37
+   ],
+   "quoten": null,
+   "quoten_seit": null
+  },
+  {
+   "match_id": 83248,
+   "heim": "Hoffenheim",
+   "gast": "Augsburg",
+   "tipp": [
+    2,
+    1
+   ],
+   "p": [
+    0.534,
+    0.212,
+    0.254
+   ],
+   "quoten": null,
+   "quoten_seit": null
+  },
+  {
+   "match_id": 83246,
+   "heim": "Dortmund",
+   "gast": "Leverkusen",
+   "tipp": [
+    2,
+    1
+   ],
+   "p": [
+    0.56,
+    0.231,
+    0.208
+   ],
+   "quoten": null,
+   "quoten_seit": null
+  }
+ ]
+}
